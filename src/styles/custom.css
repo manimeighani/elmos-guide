@@ -1802,3 +1802,36 @@ a.elmos-footer-link:hover .elmos-footer-arrow {
     transition: none;
   }
 }
+/* رفع مشکل اسکرول و فشرده شدن بخش‌های باز در نوار صفحه اصلی موبایل */
+@media (max-width: 49.999rem) {
+  .elmos-mobile-home-drawer {
+    height: calc(100vh - var(--sl-nav-height)) !important;
+    height: calc(100dvh - var(--sl-nav-height)) !important;
+    max-height: calc(100dvh - var(--sl-nav-height)) !important;
+    overflow: hidden !important;
+  }
+
+  .elmos-mobile-drawer-head {
+    flex-shrink: 0 !important;
+  }
+
+  .elmos-mobile-drawer-body {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    padding-bottom: 2.5rem !important;
+  }
+
+  /* جلوگیری از فشرده شدن بخش‌های باز تا موارد پایینی به سمت پایین بروند و اسکرول فعال شود */
+  .elmos-mobile-drawer-body > * {
+    flex-shrink: 0 !important;
+  }
+
+  .elmos-mobile-group {
+    overflow: visible !important;
+  }
+}

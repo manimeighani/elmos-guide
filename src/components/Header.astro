@@ -400,6 +400,15 @@ const navSections: TopNavSection[] = [
     const drawer = document.getElementById('elmos-mobile-home-drawer');
     const backdrop = document.querySelector<HTMLElement>('.elmos-mobile-home-backdrop');
     if (!btn || !drawer || !backdrop) return;
+
+    // انتقال نوار به body برای جلوگیری از محدود شدن ارتفاع و اسکرول توسط هدر
+    if (backdrop.parentElement !== document.body) {
+      document.body.appendChild(backdrop);
+    }
+    if (drawer.parentElement !== document.body) {
+      document.body.appendChild(drawer);
+    }
+
     if (btn.dataset.bound === 'true') return;
     btn.dataset.bound = 'true';
 
