@@ -29,6 +29,11 @@
   --elmos-hero-bg: linear-gradient(145deg, #081b2d 0%, #102e4b 100%);
   --elmos-hero-border: rgba(0, 163, 160, 0.35);
 
+  --elmos-dropdown-bg: #0a1f34;
+  --elmos-dropdown-border: rgba(0, 163, 160, 0.4);
+  --elmos-dropdown-hover: rgba(0, 163, 160, 0.16);
+  --elmos-dropdown-divider: rgba(225, 232, 237, 0.12);
+
   --elmos-footer-bg: #071828;
   --elmos-footer-border: rgba(0, 163, 160, 0.3);
   --elmos-footer-title: #ffffff;
@@ -69,6 +74,11 @@
   --elmos-hero-bg: linear-gradient(145deg, #EBF2FA 0%, #f7fbff 60%, #e4f5f4 100%);
   --elmos-hero-border: #cddbe7;
 
+  --elmos-dropdown-bg: #ffffff;
+  --elmos-dropdown-border: #cfe0eb;
+  --elmos-dropdown-hover: #e7f6f5;
+  --elmos-dropdown-divider: #e1e8ed;
+
   --elmos-footer-bg: #EBF2FA;
   --elmos-footer-border: #cddbe7;
   --elmos-footer-title: #0B243B;
@@ -98,19 +108,23 @@ html.elmos-theme-transition *::after {
     box-shadow 0.38s ease !important;
 }
 
+header.header {
+  z-index: 50 !important;
+}
+
 .site-title img {
   border-radius: 8px;
   flex-shrink: 0;
 }
 
 /* =========================================
-   ۲. چیدمان هدر و دسترسی سریع نوار بالا (دسکتاپ)
+   ۲. چیدمان هدر و منوی دسترسی سریع دسکتاپ با Hover Dropdown
    ========================================= */
 .elmos-header-bar {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 0.9rem !important;
+  gap: 0.75rem !important;
   width: 100% !important;
   height: 100% !important;
 }
@@ -120,17 +134,17 @@ html.elmos-theme-transition *::after {
 }
 
 .elmos-header-actions {
+  display: flex !important;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.55rem;
   flex-shrink: 0;
 }
 
-.elmos-header-actions .right-group {
+.elmos-search-wrap,
+.elmos-theme-wrap {
   align-items: center;
-  gap: 0.5rem;
 }
 
-/* لینک‌های دسترسی سریع: در صفحه‌های کوچک مخفی تا تداخل پیش نیاید */
 .elmos-top-nav {
   display: none;
 }
@@ -138,7 +152,7 @@ html.elmos-theme-transition *::after {
 @media (min-width: 70rem) {
   .elmos-header-bar .site-title {
     white-space: nowrap;
-    font-size: 0.95rem;
+    font-size: 0.94rem;
   }
 
   .elmos-top-nav {
@@ -151,15 +165,21 @@ html.elmos-theme-transition *::after {
     padding-inline: 0.5rem;
   }
 
+  .elmos-top-nav-group {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
   .elmos-top-nav-item {
     display: inline-flex;
     align-items: center;
-    gap: 0.42rem;
+    gap: 0.4rem;
     background: transparent !important;
     border: none !important;
-    padding: 0.3rem 0.1rem;
+    padding: 0.4rem 0.15rem;
     color: var(--sl-color-gray-2);
-    font-size: 0.84rem;
+    font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none !important;
     white-space: nowrap;
@@ -175,11 +195,18 @@ html.elmos-theme-transition *::after {
     transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  /* خط زیرین ظریف هنگام هاور یا فعال بودن بخش */
+  .elmos-top-nav-item .elmos-nav-chevron {
+    width: 0.82rem;
+    height: 0.82rem;
+    color: var(--sl-color-gray-3);
+    margin-inline-start: -0.1rem;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), color 0.22s ease;
+  }
+
   .elmos-top-nav-item::after {
     content: '';
     position: absolute;
-    bottom: -2px;
+    bottom: 0;
     inset-inline: 0;
     height: 2px;
     border-radius: 999px;
@@ -189,39 +216,158 @@ html.elmos-theme-transition *::after {
     transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .elmos-top-nav-item:hover,
+  .elmos-top-nav-group:hover .elmos-top-nav-item,
+  .elmos-top-nav-group:focus-within .elmos-top-nav-item,
   .elmos-top-nav-item.is-active {
     color: var(--sl-color-white);
   }
 
-  .elmos-top-nav-item:hover {
-    transform: translateY(-1.5px);
+  .elmos-top-nav-group:hover .elmos-top-nav-item svg:not(.elmos-nav-chevron) {
+    transform: scale(1.12);
   }
 
-  .elmos-top-nav-item:hover svg {
-    transform: scale(1.14);
+  .elmos-top-nav-group:hover .elmos-nav-chevron,
+  .elmos-top-nav-group:focus-within .elmos-nav-chevron {
+    transform: rotate(180deg);
+    color: #00A3A0;
   }
 
-  .elmos-top-nav-item:hover::after,
+  .elmos-top-nav-group:hover .elmos-top-nav-item::after,
+  .elmos-top-nav-group:focus-within .elmos-top-nav-item::after,
   .elmos-top-nav-item.is-active::after {
     transform: scaleX(1);
+  }
+
+  /* پل نامرئی بین عنوان و کادر زیرمنو تا هنگام حرکت ماوس بسته نشود */
+  .elmos-top-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    padding-top: 0.75rem;
+    min-width: 17.5rem;
+    z-index: 65;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(10px) scale(0.97);
+    transition:
+      opacity 0.24s ease,
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0.24s ease;
+  }
+
+  .elmos-top-dropdown.is-wide {
+    min-width: 24.5rem;
+  }
+
+  .elmos-top-nav-group:hover .elmos-top-dropdown,
+  .elmos-top-nav-group:focus-within .elmos-top-dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  .elmos-top-dropdown-panel {
+    background-color: var(--elmos-dropdown-bg);
+    border: 2px solid var(--elmos-dropdown-border);
+    border-top: 3.5px solid #00A3A0;
+    border-radius: 20px;
+    padding: 0.9rem;
+    box-shadow: 0 20px 48px rgba(11, 36, 59, 0.24);
+  }
+
+  .elmos-dropdown-heading {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--sl-color-white);
+    padding: 0.1rem 0.45rem 0.65rem;
+    margin-bottom: 0.45rem;
+    border-bottom: 1px solid var(--elmos-dropdown-divider);
+  }
+
+  .elmos-dropdown-list,
+  .elmos-dropdown-subgrid {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .elmos-dropdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+  }
+
+  .elmos-dropdown-subgroup {
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px dashed var(--elmos-dropdown-divider);
+  }
+
+  .elmos-dropdown-subhead {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #00A3A0;
+    padding: 0 0.45rem 0.45rem;
+  }
+
+  .elmos-dropdown-subgrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.22rem 0.45rem;
+  }
+
+  .elmos-dropdown-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: var(--sl-color-gray-1);
+    text-decoration: none !important;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+
+  .elmos-dropdown-link:hover,
+  .elmos-dropdown-link.is-current {
+    background-color: var(--elmos-dropdown-hover);
+    color: var(--sl-color-white);
+    transform: translateX(-3px);
+  }
+
+  .elmos-dropdown-link:hover .elmos-dropdown-dot,
+  .elmos-dropdown-link.is-current .elmos-dropdown-dot {
+    transform: scale(1.35);
+    background-color: #00A3A0;
   }
 }
 
 @media (min-width: 82rem) {
   .elmos-top-nav {
-    gap: 1.85rem;
+    gap: 1.75rem;
   }
 
   .elmos-top-nav-item {
     font-size: 0.9rem;
-    gap: 0.48rem;
+    gap: 0.46rem;
   }
 
-  .elmos-top-nav-item svg {
+  .elmos-top-nav-item svg:not(.elmos-nav-chevron) {
     width: 1.12rem;
     height: 1.12rem;
   }
+}
+
+.elmos-dropdown-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(0, 163, 160, 0.65);
+  flex-shrink: 0;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 /* =========================================
@@ -295,6 +441,12 @@ html.elmos-theme-transition *::after {
    ۴. نوار جستجوی بیضی‌شکل با انیمیشن (فقط دسکتاپ)
    ========================================= */
 @media (min-width: 50rem) {
+  .elmos-home-menu-btn,
+  .elmos-mobile-home-backdrop,
+  .elmos-mobile-home-drawer {
+    display: none !important;
+  }
+
   site-search button[data-open-modal] {
     border-radius: 999px !important;
     width: 9.5rem !important;
@@ -378,61 +530,347 @@ html.elmos-theme-transition *::after {
 }
 
 /* =========================================
-   ۵. هوشمندسازی عنوان و نوار موبایل
+   ۵. نوار بالا، دکمه تغییر تم و نوار کشویی اختصاصی صفحه اصلی در موبایل
    ========================================= */
 @media (max-width: 49.999rem) {
+  .elmos-header-bar {
+    max-width: 100%;
+    gap: 0.4rem !important;
+  }
+
+  .elmos-header-bar .title-wrapper {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .elmos-header-bar .site-title {
+    gap: 0.4rem !important;
+    font-size: clamp(0.74rem, 3.2vw, 0.88rem) !important;
+    line-height: 1.28 !important;
+    white-space: normal !important;
+    max-width: 100% !important;
+  }
+
+  .elmos-header-bar .site-title img {
+    width: 1.65rem !important;
+    height: 1.65rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .elmos-header-bar .site-title span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: break-word;
+  }
+
+  .elmos-header-actions {
+    gap: 0.35rem !important;
+  }
+
+  /* یکدست کردن اندازه آیکون جستجو و دکمه تغییر تم در موبایل */
+  site-search button[data-open-modal] {
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    border: 1.8px solid var(--elmos-card-border) !important;
+    background-color: var(--elmos-card-bg) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--sl-color-white) !important;
+  }
+
   .elmos-theme-toggle {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.2rem;
+    height: 2.2rem;
     padding: 0;
+    border-width: 1.8px;
   }
 
   .elmos-theme-toggle .theme-label {
     display: none;
   }
 
-  html.elmos-inner-page header.header,
-  body:has(.sidebar-pane) header.header {
-    gap: 0.35rem !important;
-    padding-inline-end: calc(var(--sl-nav-pad-x) + 2.85rem) !important;
+  /* حذف دکمه تغییر تم تکراری از پایین منوی صفحات داخلی موبایل */
+  .sidebar-pane .mobile-preferences {
+    display: none !important;
   }
 
-  html.elmos-inner-page header.header .title-wrapper,
-  body:has(.sidebar-pane) header.header .title-wrapper {
-    min-width: 0;
+  /* دکمه باز کردن نوار دسترسی سریع (فقط صفحه اصلی موبایل) */
+  .elmos-home-menu-btn {
+    position: relative;
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0;
+    border-radius: 999px;
+    border: 1.8px solid rgba(0, 163, 160, 0.55);
+    background-color: rgba(0, 163, 160, 0.12);
+    color: #00A3A0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.22s ease, color 0.22s ease;
+  }
+
+  .elmos-home-menu-btn:active {
+    transform: scale(0.9);
+  }
+
+  .elmos-home-menu-btn svg {
+    position: absolute;
+    width: 1.15rem;
+    height: 1.15rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+  }
+
+  .elmos-home-menu-btn .icon-menu {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+
+  .elmos-home-menu-btn .icon-close {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+  }
+
+  html.elmos-home-drawer-open .elmos-home-menu-btn {
+    background-color: #00A3A0;
+    color: #ffffff;
+  }
+
+  html.elmos-home-drawer-open .elmos-home-menu-btn .icon-menu {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+  }
+
+  html.elmos-home-drawer-open .elmos-home-menu-btn .icon-close {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+
+  /* پس‌زمینه مات و نوار کشویی صفحه اصلی موبایل */
+  .elmos-mobile-home-backdrop {
+    position: fixed;
+    top: var(--sl-nav-height);
+    inset-inline: 0;
+    bottom: 0;
+    background-color: rgba(7, 24, 40, 0.52);
+    backdrop-filter: blur(4px);
+    z-index: 48;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  html.elmos-home-drawer-open .elmos-mobile-home-backdrop {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .elmos-mobile-home-drawer {
+    position: fixed;
+    top: var(--sl-nav-height);
+    inset-inline-start: 0;
+    bottom: 0;
+    width: min(86vw, 21.5rem);
+    background-color: var(--sl-color-bg-sidebar);
+    border-inline-end: 2px solid var(--elmos-card-border);
+    box-shadow: -12px 0 36px rgba(11, 36, 59, 0.28);
+    z-index: 49;
+    display: flex;
+    flex-direction: column;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(100%);
+    transition:
+      transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.28s ease,
+      visibility 0.38s ease;
+  }
+
+  html.elmos-home-drawer-open .elmos-mobile-home-drawer {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .elmos-mobile-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    border-bottom: 1.5px solid var(--elmos-card-border);
+    background-color: var(--sl-color-bg-nav);
+  }
+
+  .elmos-mobile-drawer-title {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--sl-color-white);
+  }
+
+  .elmos-mobile-drawer-close {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--elmos-card-border);
+    background-color: var(--elmos-card-bg);
+    color: var(--sl-color-white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .elmos-mobile-drawer-close svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .elmos-mobile-drawer-body {
     flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .elmos-mobile-vt-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 16px;
+    background-color: rgba(0, 163, 160, 0.12);
+    border: 1.5px solid rgba(0, 163, 160, 0.45);
+    color: var(--sl-color-white);
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-decoration: none !important;
+  }
+
+  .elmos-mobile-vt-badge {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background-color: #00A3A0;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+
+  .elmos-mobile-group {
+    background-color: var(--elmos-sidebar-group-bg);
+    border: 1.5px solid var(--elmos-card-border);
+    border-radius: 16px;
     overflow: hidden;
+  }
+
+  .elmos-mobile-group-head {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.72rem 0.85rem;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--sl-color-white);
+    cursor: pointer;
+  }
+
+  .elmos-mobile-group-head::-webkit-details-marker {
+    display: none;
+  }
+
+  .elmos-mobile-caret {
+    width: 0.95rem;
+    height: 0.95rem;
+    color: #00A3A0;
+    transition: transform 0.25s ease;
+  }
+
+  .elmos-mobile-group[open] .elmos-mobile-caret {
+    transform: rotate(180deg);
+  }
+
+  .elmos-mobile-group-content {
+    padding: 0.15rem 0.65rem 0.7rem;
+    border-top: 1px solid var(--elmos-dropdown-divider);
+  }
+
+  .elmos-mobile-link-list {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0.3rem 0 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+  }
+
+  .elmos-mobile-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.42rem 0.55rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    color: var(--sl-color-gray-1);
+    text-decoration: none !important;
+  }
+
+  .elmos-mobile-link:active,
+  .elmos-mobile-link:hover {
+    background-color: var(--elmos-dropdown-hover);
+    color: var(--sl-color-white);
+  }
+
+  .elmos-mobile-subgroup {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--elmos-dropdown-divider);
+  }
+
+  .elmos-mobile-subhead {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #00A3A0;
+    padding: 0 0.45rem 0.2rem;
+  }
+
+  .elmos-mobile-link-list.is-sub {
+    padding-inline-start: 0.35rem !important;
+  }
+
+  /* تنظیم فاصله هدر در صفحات داخلی موبایل برای عدم تداخل با آیکون منوی Starlight */
+  html.elmos-inner-page header.header,
+  body:has(.sidebar-pane) header.header {
+    padding-inline-end: calc(var(--sl-nav-pad-x) + 2.75rem) !important;
   }
 
   html.elmos-inner-page header.header .site-title,
   body:has(.sidebar-pane) header.header .site-title {
-    gap: 0.4rem !important;
-    font-size: 0.76rem !important;
-    line-height: 1.25 !important;
-    white-space: normal !important;
-    display: flex !important;
-    align-items: center !important;
-    max-width: 100%;
+    font-size: 0.72rem !important;
   }
 
   html.elmos-inner-page header.header .site-title img,
   body:has(.sidebar-pane) header.header .site-title img {
-    height: 1.55rem !important;
-    width: 1.55rem !important;
+    height: 1.5rem !important;
+    width: 1.5rem !important;
   }
 
-  html.elmos-inner-page header.header .site-title span,
-  body:has(.sidebar-pane) header.header .site-title span {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  html.elmos-inner-page header.header .elmos-header-actions,
-  body:has(.sidebar-pane) header.header .elmos-header-actions {
-    gap: 0.3rem !important;
-    flex-shrink: 0 !important;
+  .hero h1 {
+    font-size: clamp(1.5rem, 6.2vw, 2.1rem) !important;
+    line-height: 1.4 !important;
+    overflow-wrap: break-word;
   }
 
   .elmos-sidebar-rail {
@@ -507,19 +945,16 @@ html.elmos-theme-transition *::after {
    ۷. کشیده‌سازی کل سایت + نوار عمودی Hover بدون باگ اسکرول (دسکتاپ)
    ========================================= */
 @media (min-width: 50rem) {
-  /* حذف ستون قدیمی «در این صفحه» */
   .right-sidebar-container,
   mobile-starlight-toc {
     display: none !important;
   }
 
-  /* کشیده‌تر شدن محتوا و فوتر در صفحه اصلی و تمام صفحات داخلی */
   .main-frame {
     padding-inline-start: 0 !important;
     padding-inline-end: 0 !important;
   }
 
-  /* فقط در صفحات داخلی فضای ریل نوار سمت راست محفوظ بماند */
   html.elmos-inner-page .main-frame,
   .page:has(.sidebar-pane) .main-frame {
     padding-inline-start: 4.5rem !important;
@@ -546,7 +981,6 @@ html.elmos-theme-transition *::after {
     margin-inline: auto !important;
   }
 
-  /* قاب بیرونی نوار کناری هرگز اسکرول نمی‌شود تا آیکون همیشه ثابت بماند */
   .sidebar-pane {
     position: fixed !important;
     top: calc(var(--sl-nav-height) + 0.85rem) !important;
@@ -574,7 +1008,6 @@ html.elmos-theme-transition *::after {
     position: relative !important;
   }
 
-  /* آیکون ریل عمودی: همیشه ثابت در بالای نوار */
   .elmos-sidebar-rail {
     position: absolute;
     inset: 0;
@@ -617,7 +1050,6 @@ html.elmos-theme-transition *::after {
     user-select: none;
   }
 
-  /* فقط این ظرف داخلی اسکرول می‌شود */
   .elmos-sidebar-inner {
     width: 18.2rem;
     min-width: 18.2rem;
@@ -697,7 +1129,6 @@ main footer > .meta {
   display: none !important;
 }
 
-/* کادر گرد «آنچه در این صفحه می‌خوانید» (فقط نسخه دسکتاپ) */
 .elmos-inline-toc {
   display: none;
 }
@@ -1369,47 +1800,5 @@ a.elmos-footer-link:hover .elmos-footer-arrow {
     opacity: 1;
     transform: none;
     transition: none;
-  }
-}
-/* اصلاح عرض عنوان سایت و تیتر صفحه اصلی در نسخه موبایل */
-@media (max-width: 49.999rem) {
-  .elmos-header-bar {
-    max-width: 100%;
-    gap: 0.45rem !important;
-  }
-
-  .elmos-header-bar .title-wrapper {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .elmos-header-bar .site-title {
-    gap: 0.45rem !important;
-    font-size: clamp(0.8rem, 3.5vw, 0.95rem) !important;
-    line-height: 1.3 !important;
-    white-space: normal !important;
-    max-width: 100% !important;
-  }
-
-  .elmos-header-bar .site-title img {
-    width: 1.75rem !important;
-    height: 1.75rem !important;
-    flex-shrink: 0 !important;
-  }
-
-  .elmos-header-bar .site-title span {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    overflow-wrap: break-word;
-  }
-
-  /* جلوگیری از بزرگ شدن بیش‌ازحد تیتر خوش‌آمدگویی در گوشی‌های باریک */
-  .hero h1 {
-    font-size: clamp(1.5rem, 6.2vw, 2.1rem) !important;
-    line-height: 1.4 !important;
-    overflow-wrap: break-word;
   }
 }

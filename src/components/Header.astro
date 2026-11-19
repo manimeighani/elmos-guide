@@ -4,31 +4,175 @@ import Search from '@astrojs/starlight/components/Search.astro';
 import ThemeToggle from './ThemeToggle.astro';
 
 const currentPath = Astro.url.pathname;
+const route = (Astro.locals as any)?.starlightRoute ?? Astro.props;
+const sidebarEntries: any[] = route?.sidebar ?? [];
+const isSplash =
+  route?.entry?.data?.template === 'splash' ||
+  currentPath === '/' ||
+  currentPath === '';
 
-const navLinks = [
+interface NavSubLink {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+interface NavSubGroup {
+  label: string;
+  items: NavSubLink[];
+}
+
+interface TopNavSection {
+  id: string;
+  href: string;
+  match: string;
+  label: string;
+  fullLabel: string;
+  icon: 'building' | 'map' | 'laptop' | 'book';
+  wide?: boolean;
+  links: NavSubLink[];
+  subGroups: NavSubGroup[];
+}
+
+function extractGroupContent(group: any): { links: NavSubLink[]; subGroups: NavSubGroup[] } {
+  const links: NavSubLink[] = [];
+  const subGroups: NavSubGroup[] = [];
+  if (!group || !Array.isArray(group.entries)) return { links, subGroups };
+
+  for (const entry of group.entries) {
+    if (entry.type === 'link') {
+      links.push({
+        label: entry.label,
+        href: entry.href,
+        external: entry.attrs?.target === '_blank',
+      });
+    } else if (entry.type === 'group') {
+      const nested = extractGroupContent(entry);
+      subGroups.push({
+        label: entry.label,
+        items: nested.links,
+      });
+    }
+  }
+  return { links, subGroups };
+}
+
+function findGroupByPrefix(prefix: string): any | undefined {
+  return sidebarEntries.find((item) => {
+    if (item.type !== 'group' || !Array.isArray(item.entries)) return false;
+    const hasMatch = (entries: any[]): boolean =>
+      entries.some((e) =>
+        e.type === 'link'
+          ? typeof e.href === 'string' && e.href.includes(prefix)
+          : e.type === 'group' && Array.isArray(e.entries)
+            ? hasMatch(e.entries)
+            : false
+      );
+    return hasMatch(item.entries);
+  });
+}
+
+function resolveSectionContent(
+  prefix: string,
+  fallbackLinks: NavSubLink[],
+  fallbackSubGroups: NavSubGroup[] = []
+) {
+  const found = findGroupByPrefix(prefix);
+  if (!found) return { links: fallbackLinks, subGroups: fallbackSubGroups };
+  const extracted = extractGroupContent(found);
+  return {
+    links: extracted.links.length > 0 ? extracted.links : fallbackLinks,
+    subGroups: extracted.subGroups.length > 0 ? extracted.subGroups : fallbackSubGroups,
+  };
+}
+
+const generalContent = resolveSectionContent('/general-info/', [
+  { label: 'آمار دانشگاه و معرفی اساتید', href: '/general-info/stats/' },
+  { label: 'مدیریت‌های دانشگاه', href: '/general-info/management/' },
+]);
+
+const campusContent = resolveSectionContent(
+  '/campus/',
+  [
+    { label: 'نقشه دانشگاه', href: '/campus/map/' },
+    { label: 'ورودی‌ها', href: '/campus/entrances/' },
+    { label: 'دانشکده‌ها', href: '/campus/faculties/' },
+  ],
+  [
+    {
+      label: 'بخش‌ها و امکانات رفاهی',
+      items: [
+        { label: 'استخر', href: '/campus/facilities/pool/' },
+        { label: 'خوابگاه‌ها', href: '/campus/facilities/dorms/' },
+        { label: 'تریاها و مکان‌های تغذیه', href: '/campus/facilities/cafeterias/' },
+        { label: 'کتابخانه مرکزی', href: '/campus/facilities/library/' },
+        { label: 'سالن‌های مطالعه', href: '/campus/facilities/study-halls/' },
+        { label: 'مسجد', href: '/campus/facilities/mosque/' },
+        { label: 'آمفی‌تئاترها', href: '/campus/facilities/amphitheaters/' },
+      ],
+    },
+  ]
+);
+
+const systemsContent = resolveSectionContent('/systems/', [
+  { label: 'سامانه سماد (تغذیه)', href: '/systems/samad/' },
+  { label: 'سامانه آی‌تی‌اس (ITS)', href: '/systems/its/' },
+  { label: 'سامانه نگارستان', href: '/systems/negarestan/' },
+  { label: 'سامانه جامع گلستان', href: '/systems/golestan/' },
+]);
+
+const educationContent = resolveSectionContent('/education/', [
+  { label: 'ترم (نیمسال تحصیلی)', href: '/education/term/' },
+  { label: 'برنامه آموزشی (چارت درسی)', href: '/education/curriculum/' },
+  { label: 'برنامه هفتگی و واحدها', href: '/education/schedule/' },
+  { label: 'انتخاب واحد و پیشنهادات', href: '/education/course-registration/' },
+]);
+
+const guidesContent = resolveSectionContent('/guides/', [
+  { label: 'راهنمای استفاده از این بخش', href: '/guides/welcome/' },
+]);
+
+const navSections: TopNavSection[] = [
   {
-    href: '/general-info/stats/',
+    id: 'general-info',
+    href: generalContent.links[0]?.href ?? '/general-info/stats/',
     match: '/general-info/',
     label: 'اطلاعات کلی',
+    fullLabel: '🏛️ اطلاعات کلی دانشگاه',
     icon: 'building',
+    links: generalContent.links,
+    subGroups: generalContent.subGroups,
   },
   {
-    href: '/campus/map/',
+    id: 'campus',
+    href: campusContent.links[0]?.href ?? '/campus/map/',
     match: '/campus/',
     label: 'نقشه و امکانات',
+    fullLabel: '🗺️ نقشه و فضاهای دانشگاه',
     icon: 'map',
+    wide: true,
+    links: campusContent.links,
+    subGroups: campusContent.subGroups,
   },
   {
-    href: '/systems/golestan/',
+    id: 'systems',
+    href: systemsContent.links[0]?.href ?? '/systems/golestan/',
     match: '/systems/',
     label: 'سامانه‌ها',
+    fullLabel: '💻 سامانه‌های اینترنتی',
     icon: 'laptop',
+    links: systemsContent.links,
+    subGroups: systemsContent.subGroups,
   },
   {
-    href: '/education/term/',
+    id: 'education',
+    href: educationContent.links[0]?.href ?? '/education/term/',
     match: '/education/',
     label: 'مفاهیم آموزشی',
+    fullLabel: '🎓 مفاهیم آموزشی',
     icon: 'book',
+    links: educationContent.links,
+    subGroups: educationContent.subGroups,
   },
 ];
 ---
@@ -38,49 +182,250 @@ const navLinks = [
     <SiteTitle {...Astro.props} />
   </div>
 
-  {/* دسترسی سریع نوار بالای دسکتاپ (فقط آیکون و متن با فاصله و بدون کادر) */}
+  {/* نوار دسترسی سریع دسکتاپ با منوی زیرشاخه روی Hover */}
   <nav class="elmos-top-nav" aria-label="دسترسی سریع به بخش‌ها">
-    {navLinks.map((item) => {
-      const isActive = currentPath.startsWith(item.match);
+    {navSections.map((section) => {
+      const isActive = currentPath.startsWith(section.match);
       return (
-        <a href={item.href} class:list={['elmos-top-nav-item', { 'is-active': isActive }]}>
-          {item.icon === 'building' && (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M3 21h18" />
-              <path d="M5 21V7l7-4 7 4v14" />
-              <path d="M9 21v-6h6v6" />
+        <div class="elmos-top-nav-group">
+          <a href={section.href} class:list={['elmos-top-nav-item', { 'is-active': isActive }]}>
+            {section.icon === 'building' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 21h18" />
+                <path d="M5 21V7l7-4 7 4v14" />
+                <path d="M9 21v-6h6v6" />
+              </svg>
+            )}
+            {section.icon === 'map' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            )}
+            {section.icon === 'laptop' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect width="18" height="12" x="3" y="4" rx="2" ry="2" />
+                <line x1="2" x2="22" y1="20" y2="20" />
+              </svg>
+            )}
+            {section.icon === 'book' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
+            )}
+            <span>{section.label}</span>
+            <svg class="elmos-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
             </svg>
-          )}
-          {item.icon === 'map' && (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-          )}
-          {item.icon === 'laptop' && (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect width="18" height="12" x="3" y="4" rx="2" ry="2" />
-              <line x1="2" x2="22" y1="20" y2="20" />
-            </svg>
-          )}
-          {item.icon === 'book' && (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-            </svg>
-          )}
-          <span>{item.label}</span>
-        </a>
+          </a>
+
+          {/* پنل بازشونده زیر هر بخش هنگام Hover */}
+          <div class:list={['elmos-top-dropdown', { 'is-wide': section.wide }]}>
+            <div class="elmos-top-dropdown-panel">
+              <div class="elmos-dropdown-heading">{section.fullLabel}</div>
+
+              <ul class="elmos-dropdown-list">
+                {section.links.map((link) => (
+                  <li>
+                    <a
+                      href={link.href}
+                      class:list={['elmos-dropdown-link', { 'is-current': currentPath === link.href }]}
+                    >
+                      <span class="elmos-dropdown-dot" aria-hidden="true"></span>
+                      <span>{link.label}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              {section.subGroups.map((sub) => (
+                <div class="elmos-dropdown-subgroup">
+                  <div class="elmos-dropdown-subhead">{sub.label}</div>
+                  <ul class="elmos-dropdown-subgrid">
+                    {sub.items.map((subItem) => (
+                      <li>
+                        <a
+                          href={subItem.href}
+                          class:list={['elmos-dropdown-link', { 'is-current': currentPath === subItem.href }]}
+                        >
+                          <span class="elmos-dropdown-dot" aria-hidden="true"></span>
+                          <span>{subItem.label}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       );
     })}
   </nav>
 
+  {/* ابزارهای سمت چپ هدر: جستجو + تغییر تم (موبایل و دسکتاپ) + آیکون منوی صفحه اصلی موبایل */}
   <div class="elmos-header-actions sl-flex print:hidden">
     <div class="elmos-search-wrap sl-flex">
       <Search {...Astro.props} />
     </div>
-    <div class="sl-hidden md:sl-flex right-group">
+
+    <div class="elmos-theme-wrap sl-flex">
       <ThemeToggle />
     </div>
+
+    {isSplash && (
+      <button
+        type="button"
+        class="elmos-home-menu-btn"
+        aria-label="باز کردن فهرست دسترسی سریع"
+        aria-expanded="false"
+        aria-controls="elmos-mobile-home-drawer"
+      >
+        <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" y1="7" x2="20" y2="7" />
+          <line x1="4" y1="12" x2="16" y2="12" />
+          <line x1="4" y1="17" x2="20" y2="17" />
+        </svg>
+        <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    )}
   </div>
 </div>
+
+{/* نوار کشویی دسترسی سریع (فقط برای صفحه اصلی در نسخه موبایل) */}
+{isSplash && (
+  <>
+    <div class="elmos-mobile-home-backdrop" data-home-drawer-close aria-hidden="true"></div>
+    <aside
+      id="elmos-mobile-home-drawer"
+      class="elmos-mobile-home-drawer"
+      aria-label="فهرست دسترسی سریع"
+      aria-hidden="true"
+    >
+      <div class="elmos-mobile-drawer-head">
+        <span class="elmos-mobile-drawer-title">فهرست دسترسی سریع</span>
+        <button type="button" class="elmos-mobile-drawer-close" data-home-drawer-close aria-label="بستن فهرست">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="elmos-mobile-drawer-body">
+        <a
+          href="https://vt.iust.ac.ir"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="elmos-mobile-vt-card"
+        >
+          <span>🌐 تور مجازی دانشگاه علم و صنعت</span>
+          <span class="elmos-mobile-vt-badge">۳۶۰ درجه ↗</span>
+        </a>
+
+        {navSections.map((section) => (
+          <details class="elmos-mobile-group" open>
+            <summary class="elmos-mobile-group-head">
+              <span>{section.fullLabel}</span>
+              <svg class="elmos-mobile-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </summary>
+
+            <div class="elmos-mobile-group-content">
+              <ul class="elmos-mobile-link-list">
+                {section.links.map((link) => (
+                  <li>
+                    <a href={link.href} class="elmos-mobile-link" data-home-drawer-close>
+                      <span class="elmos-dropdown-dot" aria-hidden="true"></span>
+                      <span>{link.label}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              {section.subGroups.map((sub) => (
+                <div class="elmos-mobile-subgroup">
+                  <div class="elmos-mobile-subhead">{sub.label}</div>
+                  <ul class="elmos-mobile-link-list is-sub">
+                    {sub.items.map((subItem) => (
+                      <li>
+                        <a href={subItem.href} class="elmos-mobile-link" data-home-drawer-close>
+                          <span class="elmos-dropdown-dot" aria-hidden="true"></span>
+                          <span>{subItem.label}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </details>
+        ))}
+
+        {guidesContent.links.length > 0 && (
+          <details class="elmos-mobile-group">
+            <summary class="elmos-mobile-group-head">
+              <span>📚 آموزش‌ها و راهنماهای تکمیلی</span>
+              <svg class="elmos-mobile-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </summary>
+            <div class="elmos-mobile-group-content">
+              <ul class="elmos-mobile-link-list">
+                {guidesContent.links.map((link) => (
+                  <li>
+                    <a href={link.href} class="elmos-mobile-link" data-home-drawer-close>
+                      <span class="elmos-dropdown-dot" aria-hidden="true"></span>
+                      <span>{link.label}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </details>
+        )}
+      </div>
+    </aside>
+  </>
+)}
+
+<script>
+  function initMobileHomeDrawer() {
+    const btn = document.querySelector<HTMLButtonElement>('.elmos-home-menu-btn');
+    const drawer = document.getElementById('elmos-mobile-home-drawer');
+    const backdrop = document.querySelector<HTMLElement>('.elmos-mobile-home-backdrop');
+    if (!btn || !drawer || !backdrop) return;
+    if (btn.dataset.bound === 'true') return;
+    btn.dataset.bound = 'true';
+
+    const setOpen = (open: boolean) => {
+      document.documentElement.classList.toggle('elmos-home-drawer-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      drawer.setAttribute('aria-hidden', String(!open));
+      document.body.style.overflow = open ? 'hidden' : '';
+    };
+
+    btn.addEventListener('click', () => {
+      const isOpen = document.documentElement.classList.contains('elmos-home-drawer-open');
+      setOpen(!isOpen);
+    });
+
+    document.querySelectorAll('[data-home-drawer-close]').forEach((el) => {
+      el.addEventListener('click', () => setOpen(false));
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.documentElement.classList.contains('elmos-home-drawer-open')) {
+        setOpen(false);
+      }
+    });
+  }
+
+  initMobileHomeDrawer();
+  document.addEventListener('astro:after-swap', initMobileHomeDrawer);
+</script>
