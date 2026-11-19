@@ -1,0 +1,104 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+
+const route = Astro.locals?.starlightRoute ?? Astro.props;
+const entry = route.entry;
+const pageTitle = entry?.data?.title ?? '';
+const isSplash = entry?.data?.template === 'splash';
+
+// استخراج سرتیترهای صفحه برای کادر «آنچه در این صفحه می‌خوانید»
+const rawItems = route.toc?.items ?? [];
+const tocItems = rawItems
+  .filter((item: any) => item.slug !== '_top')
+  .flatMap((item: any) => [
+    { slug: item.slug, text: item.text, isSub: false },
+    ...(item.children ?? []).map((child: any) => ({
+      slug: child.slug,
+      text: child.text,
+      isSub: true,
+    })),
+  ]);
+
+// محاسبه تاریخ و ساعت آخرین ویرایش (از Git یا زمان واقعی ویرایش فایل روی سیستم)
+let updatedDate: Date | undefined =
+  route.lastUpdated instanceof Date
+    ? route.lastUpdated
+    : route.lastUpdated
+      ? new Date(route.lastUpdated)
+      : undefined;
+
+if (!updatedDate && entry?.id) {
+  const basePath = path.join(process.cwd(), 'src', 'content', 'docs');
+  const candidates = [
+    entry.filePath ? path.join(process.cwd(), entry.filePath) : '',
+    path.join(basePath, `${entry.id}.md`),
+    path.join(basePath, `${entry.id}.mdx`),
+    path.join(basePath, entry.id, 'index.md'),
+    path.join(basePath, entry.id, 'index.mdx'),
+  ].filter(Boolean);
+
+  for (const filePath of candidates) {
+    try {
+      if (fs.existsSync(filePath)) {
+        updatedDate = fs.statSync(filePath).mtime;
+        break;
+      }
+    } catch {}
+  }
+}
+
+const dateToFormat = updatedDate ?? new Date();
+const formattedDate = new Intl.DateTimeFormat('fa-IR', {
+  timeZone: 'Asia/Tehran',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(dateToFormat);
+
+const formattedTime = new Intl.DateTimeFormat('fa-IR', {
+  timeZone: 'Asia/Tehran',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+}).format(dateToFormat);
+---
+
+<div class="elmos-page-header">
+  <h1 id="_top" class="elmos-page-title">{pageTitle}</h1>
+
+  {!isSplash && (
+    <div class="elmos-last-updated">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span>آخرین ویرایش: {formattedDate} — ساعت {formattedTime}</span>
+    </div>
+  )}
+</div>
+
+{!isSplash && tocItems.length > 0 && (
+  <nav class="elmos-inline-toc" aria-label="آنچه در این صفحه می‌خوانید">
+    <div class="elmos-inline-toc-head">
+      <svg class="elmos-toc-lead-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="19 12 5 5 5 19 19 12"></polygon>
+      </svg>
+      <span>آنچه در این صفحه می‌خوانید:</span>
+    </div>
+    <ul class="elmos-inline-toc-list">
+      {tocItems.map((item: { slug: string; text: string; isSub: boolean }) => (
+        <li class={item.isSub ? 'is-sub' : ''}>
+          <a href={`#${item.slug}`}>
+            <span class="elmos-toc-check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+            <span class="elmos-toc-text">{item.text}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}

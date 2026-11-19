@@ -1,0 +1,20 @@
+---
+import DefaultSidebar from '@astrojs/starlight/components/Sidebar.astro';
+---
+
+<!-- نوار آیکون عمودی (فقط در دسکتاپ وقتی نوار بسته است دیده می‌شود) -->
+<div class="elmos-sidebar-rail" aria-hidden="true">
+  <span class="elmos-rail-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="7" x2="20" y2="7"></line>
+      <line x1="4" y1="12" x2="16" y2="12"></line>
+      <line x1="4" y1="17" x2="20" y2="17"></line>
+    </svg>
+  </span>
+  <span class="elmos-rail-label">فهرست بخش‌ها</span>
+</div>
+
+<!-- محتوای اصلی منو با موضوعات تفکیک‌شده -->
+<div class="elmos-sidebar-inner">
+  <DefaultSidebar {...Astro.props}><slot /></DefaultSidebar>
+</div>

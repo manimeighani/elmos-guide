@@ -1,0 +1,84 @@
+---
+---
+
+<button
+  type="button"
+  class="elmos-theme-toggle"
+  aria-label="تغییر تم روشن و تیره"
+  title="تغییر حالت روشن / تیره"
+>
+  <span class="theme-icon-wrap" aria-hidden="true">
+    <!-- آیکون خورشید (حالت روشن) -->
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2"></path>
+      <path d="M12 20v2"></path>
+      <path d="m4.93 4.93 1.41 1.41"></path>
+      <path d="m17.66 17.66 1.41 1.41"></path>
+      <path d="M2 12h2"></path>
+      <path d="M20 12h2"></path>
+      <path d="m6.34 17.66-1.41 1.41"></path>
+      <path d="m19.07 4.93-1.41 1.41"></path>
+    </svg>
+    <!-- آیکون ماه (حالت تیره) -->
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+    </svg>
+  </span>
+  <span class="theme-label">روشن</span>
+</button>
+
+<script>
+  const STORAGE_KEY = 'starlight-theme';
+
+  function getPreferredTheme(): 'dark' | 'light' {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme: 'dark' | 'light', withTransition = false) {
+    const root = document.documentElement;
+    if (withTransition) {
+      root.classList.add('elmos-theme-transition');
+      window.setTimeout(() => root.classList.remove('elmos-theme-transition'), 420);
+    }
+
+    root.dataset.theme = theme;
+
+    document.querySelectorAll('.elmos-theme-toggle').forEach((btn) => {
+      const label = btn.querySelector('.theme-label');
+      if (label) {
+        label.textContent = theme === 'dark' ? 'تیره' : 'روشن';
+      }
+      btn.setAttribute('aria-pressed', String(theme === 'dark'));
+    });
+  }
+
+  function initThemeToggles() {
+    applyTheme(getPreferredTheme(), false);
+
+    document.querySelectorAll('.elmos-theme-toggle').forEach((btn) => {
+      if (btn.getAttribute('data-bound') === 'true') return;
+      btn.setAttribute('data-bound', 'true');
+
+      btn.addEventListener('click', () => {
+        const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(STORAGE_KEY, next);
+        applyTheme(next, true);
+      });
+    });
+
+    // همگام‌سازی خودکار با تغییر تم سیستم در صورتی که کاربر دستی تغییر نداده باشد
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        applyTheme(e.matches ? 'dark' : 'light', true);
+      }
+    });
+  }
+
+  initThemeToggles();
+  document.addEventListener('astro:after-swap', initThemeToggles);
+</script>

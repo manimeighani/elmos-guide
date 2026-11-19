@@ -1,0 +1,86 @@
+---
+import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
+import Search from '@astrojs/starlight/components/Search.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  {
+    href: '/general-info/stats/',
+    match: '/general-info/',
+    label: 'اطلاعات کلی',
+    icon: 'building',
+  },
+  {
+    href: '/campus/map/',
+    match: '/campus/',
+    label: 'نقشه و امکانات',
+    icon: 'map',
+  },
+  {
+    href: '/systems/golestan/',
+    match: '/systems/',
+    label: 'سامانه‌ها',
+    icon: 'laptop',
+  },
+  {
+    href: '/education/term/',
+    match: '/education/',
+    label: 'مفاهیم آموزشی',
+    icon: 'book',
+  },
+];
+---
+
+<div class="header elmos-header-bar">
+  <div class="title-wrapper sl-flex">
+    <SiteTitle {...Astro.props} />
+  </div>
+
+  {/* دسترسی سریع نوار بالای دسکتاپ (فقط آیکون و متن با فاصله و بدون کادر) */}
+  <nav class="elmos-top-nav" aria-label="دسترسی سریع به بخش‌ها">
+    {navLinks.map((item) => {
+      const isActive = currentPath.startsWith(item.match);
+      return (
+        <a href={item.href} class:list={['elmos-top-nav-item', { 'is-active': isActive }]}>
+          {item.icon === 'building' && (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 21h18" />
+              <path d="M5 21V7l7-4 7 4v14" />
+              <path d="M9 21v-6h6v6" />
+            </svg>
+          )}
+          {item.icon === 'map' && (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+          )}
+          {item.icon === 'laptop' && (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="18" height="12" x="3" y="4" rx="2" ry="2" />
+              <line x1="2" x2="22" y1="20" y2="20" />
+            </svg>
+          )}
+          {item.icon === 'book' && (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+          )}
+          <span>{item.label}</span>
+        </a>
+      );
+    })}
+  </nav>
+
+  <div class="elmos-header-actions sl-flex print:hidden">
+    <div class="elmos-search-wrap sl-flex">
+      <Search {...Astro.props} />
+    </div>
+    <div class="sl-hidden md:sl-flex right-group">
+      <ThemeToggle />
+    </div>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+backend:
+  name: github
+  repo: YOUR_GITHUB_USERNAME/elmos-guide
+  branch: main
+  base_url: https://YOUR_SITE.pages.dev
+  auth_endpoint: api/auth
+
+# فعال‌سازی اجرای آفلاین پنل روی سیستم خودتان برای تست
+local_backend: true
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "general-info"
+    label: "🏛️ اطلاعات کلی دانشگاه"
+    folder: "src/content/docs/general-info"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "عنوان صفحه", name: "title", widget: "string" }
+      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
+      - label: "ترتیب در منو"
+        name: "sidebar"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
+      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+
+  - name: "campus"
+    label: "🗺️ نقشه، ورودی‌ها و دانشکده‌ها"
+    folder: "src/content/docs/campus"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "عنوان صفحه", name: "title", widget: "string" }
+      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
+      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+
+  - name: "facilities"
+    label: "🏢 امکانات رفاهی دانشگاه"
+    folder: "src/content/docs/campus/facilities"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "نام بخش یا امکان رفاهی", name: "title", widget: "string" }
+      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
+      - label: "ترتیب در منو"
+        name: "sidebar"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
+      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+
+  - name: "systems"
+    label: "💻 سامانه‌های اینترنتی (افزودن سامانه جدید)"
+    folder: "src/content/docs/systems"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "نام سامانه", name: "title", widget: "string" }
+      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
+      - label: "ترتیب در منو"
+        name: "sidebar"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
+      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+
+  - name: "education"
+    label: "🎓 مفاهیم آموزشی (افزودن مفهوم جدید)"
+    folder: "src/content/docs/education"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "عنوان مفهوم آموزشی", name: "title", widget: "string" }
+      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
+      - label: "ترتیب در منو"
+        name: "sidebar"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
+      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+
+  - name: "guides"
+    label: "📚 آموزش‌ها و بخش‌های جدید"
+    folder: "src/content/docs/guides"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "عنوان آموزش", name: "title", widget: "string" }
+      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
+      - label: "ترتیب در منو"
+        name: "sidebar"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
+      - { label: "محتوای صفحه", name: "body", widget: "markdown" }

@@ -1,0 +1,16 @@
+{
+  "name": "elmos-guide",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "cms": "npx decap-server"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.31.0",
+    "astro": "^5.1.0",
+    "sharp": "^0.33.5"
+  }
+}

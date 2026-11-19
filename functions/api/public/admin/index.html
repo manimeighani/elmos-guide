@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" href="/iconprfile.png" />
+    <title>پنل مدیریت محتوا | راهنمای علموص</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
+    />
+    <style>
+      body, input, textarea, button, select {
+        font-family: 'Vazirmatn', sans-serif !important;
+      }
+      [data-slate-editor="true"], .CodeMirror {
+        direction: rtl;
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script>
+      // ۱. ابزار افزودن کلمه رنگی و کلیک‌پذیر (مفهوم آموزشی)
+      CMS.registerEditorComponent({
+        id: 'term-link',
+        label: '🏷️ کلمه رنگی کلیک‌پذیر (مفهوم آموزشی)',
+        fields: [
+          { name: 'text', label: 'کلمه نمایشی (مثلاً: انتخاب واحد)', widget: 'string' },
+          {
+            name: 'url',
+            label: 'آدرس صفحه مقصد (مثلاً: /education/course-registration/)',
+            widget: 'string',
+            default: '/education/',
+          },
+          {
+            name: 'tooltip',
+            label: 'توضیح کوتاه روی هاور ماوس (اختیاری)',
+            widget: 'string',
+            required: false,
+          },
+        ],
+        pattern: /<a href="([^"]+)" class="term-link"(?: data-tooltip="([^"]*)")?>([^<]+)<\/a>/,
+        fromBlock: function (match) {
+          return { url: match[1], tooltip: match[2] || '', text: match[3] };
+        },
+        toBlock: function (data) {
+          const tip = data.tooltip ? ` data-tooltip="${data.tooltip}"` : '';
+          return `<a href="${data.url}" class="term-link"${tip}>${data.text}</a>`;
+        },
+        toPreview: function (data) {
+          return `<span style="color:#008582;background:rgba(0,163,160,0.12);padding:2px 8px;border-radius:6px;border-bottom:2px dashed #00A3A0;font-weight:bold;">${data.text}</span>`;
+        },
+      });
+
+      // ۲. ابزار افزودن دکمه ورود به سامانه
+      CMS.registerEditorComponent({
+        id: 'system-button',
+        label: '🔗 دکمه لینک سامانه / سایت',
+        fields: [
+          { name: 'label', label: 'متن روی دکمه (مثلاً: ورود به سامانه گلستان)', widget: 'string' },
+          { name: 'url', label: 'لینک سایت (با https://)', widget: 'string' },
+        ],
+        pattern: /<div class="system-btn-group"><a href="([^"]+)" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ([^<]+)<\/a><\/div>/,
+        fromBlock: function (match) {
+          return { url: match[1], label: match[2] };
+        },
+        toBlock: function (data) {
+          return `<div class="system-btn-group"><a href="${data.url}" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ${data.label}</a></div>`;
+        },
+        toPreview: function (data) {
+          return `<div style="display:inline-block;background:#0B243B;color:#fff;padding:8px 16px;border-radius:8px;border:1px solid #00A3A0;font-weight:bold;">🔗 ${data.label}</div>`;
+        },
+      });
+
+      // ۳. ابزار افزودن ویدیوی آپارات
+      CMS.registerEditorComponent({
+        id: 'aparat-video',
+        label: '🎬 ویدیوی آپارات',
+        fields: [
+          {
+            name: 'hash',
+            label: 'شناسه ویدیوی آپارات (قسمت آخر لینک بعد از /v/ مثلاً aBcDe)',
+            widget: 'string',
+          },
+        ],
+        pattern: /<div class="video-container"><iframe src="https:\/\/www\.aparat\.com\/video\/video\/embed\/videohash\/([^\/]+)\/vt\/frame" allowfullscreen="true"><\/iframe><\/div>/,
+        fromBlock: function (match) {
+          return { hash: match[1] };
+        },
+        toBlock: function (data) {
+          return `<div class="video-container"><iframe src="https://www.aparat.com/video/video/embed/videohash/${data.hash}/vt/frame" allowfullscreen="true"></iframe></div>`;
+        },
+        toPreview: function (data) {
+          return `<div style="background:#EBF2FA;color:#1D2A3A;border:1px solid #E1E8ED;padding:24px;text-align:center;border-radius:8px;">🎬 ویدیوی آپارات (شناسه: ${data.hash})</div>`;
+        },
+      });
+
+      // ۴. ابزار کادر نکته، هشدار یا توجه
+      CMS.registerEditorComponent({
+        id: 'callout-box',
+        label: '💡 کادر نکته / هشدار',
+        fields: [
+          {
+            name: 'type',
+            label: 'نوع کادر',
+            widget: 'select',
+            options: [
+              { label: 'نکته (فیروزه‌ای/سبز)', value: 'tip' },
+              { label: 'توجه (زرد)', value: 'caution' },
+              { label: 'هشدار مهم (قرمز)', value: 'danger' },
+              { label: 'توضیح (سرمه‌ای/آبی)', value: 'note' },
+            ],
+            default: 'tip',
+          },
+          { name: 'title', label: 'عنوان کادر', widget: 'string', default: 'نکته مهم' },
+          { name: 'content', label: 'متن داخل کادر', widget: 'text' },
+        ],
+        pattern: /^:::(tip|caution|danger|note)\[([^\]]+)\]\n([\s\S]*?)\n:::$/m,
+        fromBlock: function (match) {
+          return { type: match[1], title: match[2], content: match[3] };
+        },
+        toBlock: function (data) {
+          return `:::${data.type}[${data.title}]\n${data.content}\n:::`;
+        },
+        toPreview: function (data) {
+          return `<div style="border-right:4px solid #00A3A0;background:#EBF2FA;color:#1D2A3A;padding:12px;border-radius:6px;"><strong>${data.title}</strong><p>${data.content}</p></div>`;
+        },
+      });
+    </script>
+  </body>
+</html>
