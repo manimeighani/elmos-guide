@@ -4,12 +4,11 @@ import Search from '@astrojs/starlight/components/Search.astro';
 import ThemeToggle from './ThemeToggle.astro';
 
 const currentPath = Astro.url.pathname;
+const normalizePath = (p: string) => p.replace(/\/$/, '') || '/';
+const isCurrentPath = (href: string) => normalizePath(currentPath) === normalizePath(href);
+
 const route = (Astro.locals as any)?.starlightRoute ?? Astro.props;
 const sidebarEntries: any[] = route?.sidebar ?? [];
-const isSplash =
-  route?.entry?.data?.template === 'splash' ||
-  currentPath === '/' ||
-  currentPath === '';
 
 interface NavSubLink {
   label: string;
@@ -220,7 +219,6 @@ const navSections: TopNavSection[] = [
             </svg>
           </a>
 
-          {/* پنل بازشونده زیر هر بخش هنگام Hover */}
           <div class:list={['elmos-top-dropdown', { 'is-wide': section.wide }]}>
             <div class="elmos-top-dropdown-panel">
               <div class="elmos-dropdown-heading">{section.fullLabel}</div>
@@ -230,7 +228,7 @@ const navSections: TopNavSection[] = [
                   <li>
                     <a
                       href={link.href}
-                      class:list={['elmos-dropdown-link', { 'is-current': currentPath === link.href }]}
+                      class:list={['elmos-dropdown-link', { 'is-current': isCurrentPath(link.href) }]}
                     >
                       <span class="elmos-dropdown-dot" aria-hidden="true"></span>
                       <span>{link.label}</span>
@@ -247,7 +245,7 @@ const navSections: TopNavSection[] = [
                       <li>
                         <a
                           href={subItem.href}
-                          class:list={['elmos-dropdown-link', { 'is-current': currentPath === subItem.href }]}
+                          class:list={['elmos-dropdown-link', { 'is-current': isCurrentPath(subItem.href) }]}
                         >
                           <span class="elmos-dropdown-dot" aria-hidden="true"></span>
                           <span>{subItem.label}</span>
@@ -264,7 +262,7 @@ const navSections: TopNavSection[] = [
     })}
   </nav>
 
-  {/* ابزارهای سمت چپ هدر: جستجو + تغییر تم (موبایل و دسکتاپ) + آیکون منوی صفحه اصلی موبایل */}
+  {/* ابزارهای سمت چپ هدر: جستجو + تغییر تم + دکمه نوار موبایل در همه صفحات */}
   <div class="elmos-header-actions sl-flex print:hidden">
     <div class="elmos-search-wrap sl-flex">
       <Search {...Astro.props} />
@@ -274,125 +272,140 @@ const navSections: TopNavSection[] = [
       <ThemeToggle />
     </div>
 
-    {isSplash && (
-      <button
-        type="button"
-        class="elmos-home-menu-btn"
-        aria-label="باز کردن فهرست دسترسی سریع"
-        aria-expanded="false"
-        aria-controls="elmos-mobile-home-drawer"
-      >
-        <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="4" y1="7" x2="20" y2="7" />
-          <line x1="4" y1="12" x2="16" y2="12" />
-          <line x1="4" y1="17" x2="20" y2="17" />
-        </svg>
-        <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </button>
-    )}
+    <button
+      type="button"
+      class="elmos-home-menu-btn"
+      aria-label="باز کردن فهرست دسترسی سریع"
+      aria-expanded="false"
+      aria-controls="elmos-mobile-home-drawer"
+    >
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="4" y1="7" x2="20" y2="7" />
+        <line x1="4" y1="12" x2="16" y2="12" />
+        <line x1="4" y1="17" x2="20" y2="17" />
+      </svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
   </div>
 </div>
 
-{/* نوار کشویی دسترسی سریع (فقط برای صفحه اصلی در نسخه موبایل) */}
-{isSplash && (
-  <>
-    <div class="elmos-mobile-home-backdrop" data-home-drawer-close aria-hidden="true"></div>
-    <aside
-      id="elmos-mobile-home-drawer"
-      class="elmos-mobile-home-drawer"
-      aria-label="فهرست دسترسی سریع"
-      aria-hidden="true"
+{/* نوار کشویی یکپارچه برای همه صفحات در نسخه موبایل */}
+<div class="elmos-mobile-home-backdrop" data-home-drawer-close aria-hidden="true"></div>
+<aside
+  id="elmos-mobile-home-drawer"
+  class="elmos-mobile-home-drawer"
+  aria-label="فهرست دسترسی سریع"
+  aria-hidden="true"
+>
+  <div class="elmos-mobile-drawer-head">
+    <span class="elmos-mobile-drawer-title">فهرست دسترسی سریع</span>
+    <button type="button" class="elmos-mobile-drawer-close" data-home-drawer-close aria-label="بستن فهرست">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="elmos-mobile-drawer-body">
+    <a
+      href="/"
+      class:list={['elmos-mobile-home-card', { 'is-current': isCurrentPath('/') }]}
+      data-home-drawer-close
     >
-      <div class="elmos-mobile-drawer-head">
-        <span class="elmos-mobile-drawer-title">فهرست دسترسی سریع</span>
-        <button type="button" class="elmos-mobile-drawer-close" data-home-drawer-close aria-label="بستن فهرست">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
+      <span>🏠 صفحه اصلی راهنما</span>
+      <span class="elmos-mobile-home-arrow">←</span>
+    </a>
+
+    <a
+      href="https://vt.iust.ac.ir"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="elmos-mobile-vt-card"
+    >
+      <span>🌐 تور مجازی دانشگاه علم و صنعت</span>
+      <span class="elmos-mobile-vt-badge">۳۶۰ درجه ↗</span>
+    </a>
+
+    {navSections.map((section) => (
+      <details class="elmos-mobile-group" open>
+        <summary class="elmos-mobile-group-head">
+          <span>{section.fullLabel}</span>
+          <svg class="elmos-mobile-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9" />
           </svg>
-        </button>
-      </div>
+        </summary>
 
-      <div class="elmos-mobile-drawer-body">
-        <a
-          href="https://vt.iust.ac.ir"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="elmos-mobile-vt-card"
-        >
-          <span>🌐 تور مجازی دانشگاه علم و صنعت</span>
-          <span class="elmos-mobile-vt-badge">۳۶۰ درجه ↗</span>
-        </a>
+        <div class="elmos-mobile-group-content">
+          <ul class="elmos-mobile-link-list">
+            {section.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class:list={['elmos-mobile-link', { 'is-current': isCurrentPath(link.href) }]}
+                  data-home-drawer-close
+                >
+                  <span class="elmos-dropdown-dot" aria-hidden="true"></span>
+                  <span>{link.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
 
-        {navSections.map((section) => (
-          <details class="elmos-mobile-group" open>
-            <summary class="elmos-mobile-group-head">
-              <span>{section.fullLabel}</span>
-              <svg class="elmos-mobile-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </summary>
-
-            <div class="elmos-mobile-group-content">
-              <ul class="elmos-mobile-link-list">
-                {section.links.map((link) => (
+          {section.subGroups.map((sub) => (
+            <div class="elmos-mobile-subgroup">
+              <div class="elmos-mobile-subhead">{sub.label}</div>
+              <ul class="elmos-mobile-link-list is-sub">
+                {sub.items.map((subItem) => (
                   <li>
-                    <a href={link.href} class="elmos-mobile-link" data-home-drawer-close>
+                    <a
+                      href={subItem.href}
+                      class:list={['elmos-mobile-link', { 'is-current': isCurrentPath(subItem.href) }]}
+                      data-home-drawer-close
+                    >
                       <span class="elmos-dropdown-dot" aria-hidden="true"></span>
-                      <span>{link.label}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-
-              {section.subGroups.map((sub) => (
-                <div class="elmos-mobile-subgroup">
-                  <div class="elmos-mobile-subhead">{sub.label}</div>
-                  <ul class="elmos-mobile-link-list is-sub">
-                    {sub.items.map((subItem) => (
-                      <li>
-                        <a href={subItem.href} class="elmos-mobile-link" data-home-drawer-close>
-                          <span class="elmos-dropdown-dot" aria-hidden="true"></span>
-                          <span>{subItem.label}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </details>
-        ))}
-
-        {guidesContent.links.length > 0 && (
-          <details class="elmos-mobile-group">
-            <summary class="elmos-mobile-group-head">
-              <span>📚 آموزش‌ها و راهنماهای تکمیلی</span>
-              <svg class="elmos-mobile-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </summary>
-            <div class="elmos-mobile-group-content">
-              <ul class="elmos-mobile-link-list">
-                {guidesContent.links.map((link) => (
-                  <li>
-                    <a href={link.href} class="elmos-mobile-link" data-home-drawer-close>
-                      <span class="elmos-dropdown-dot" aria-hidden="true"></span>
-                      <span>{link.label}</span>
+                      <span>{subItem.label}</span>
                     </a>
                   </li>
                 ))}
               </ul>
             </div>
-          </details>
-        )}
-      </div>
-    </aside>
-  </>
-)}
+          ))}
+        </div>
+      </details>
+    ))}
+
+    {guidesContent.links.length > 0 && (
+      <details class="elmos-mobile-group" open={currentPath.startsWith('/guides/')}>
+        <summary class="elmos-mobile-group-head">
+          <span>📚 آموزش‌ها و راهنماهای تکمیلی</span>
+          <svg class="elmos-mobile-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </summary>
+        <div class="elmos-mobile-group-content">
+          <ul class="elmos-mobile-link-list">
+            {guidesContent.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class:list={['elmos-mobile-link', { 'is-current': isCurrentPath(link.href) }]}
+                  data-home-drawer-close
+                >
+                  <span class="elmos-dropdown-dot" aria-hidden="true"></span>
+                  <span>{link.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </details>
+    )}
+  </div>
+</aside>
 
 <script>
   function initMobileHomeDrawer() {
@@ -401,7 +414,6 @@ const navSections: TopNavSection[] = [
     const backdrop = document.querySelector<HTMLElement>('.elmos-mobile-home-backdrop');
     if (!btn || !drawer || !backdrop) return;
 
-    // انتقال نوار به body برای جلوگیری از محدود شدن ارتفاع و اسکرول توسط هدر
     if (backdrop.parentElement !== document.body) {
       document.body.appendChild(backdrop);
     }

@@ -1835,3 +1835,78 @@ a.elmos-footer-link:hover .elmos-footer-arrow {
     overflow: visible !important;
   }
 }
+/* یکپارچه‌سازی نوار کشویی موبایل برای تمام صفحات و حذف دکمه منوی تکراری */
+@media (max-width: 49.999rem) {
+  /* حذف دکمه و نوار پیش‌فرض Starlight فقط در موبایل */
+  starlight-menu-button,
+  .sidebar-pane {
+    display: none !important;
+  }
+
+  /* حذف فاصله اضافه سمت چپ هدر در صفحات داخلی (چون دکمه قدیمی حذف شد) */
+  html.elmos-inner-page header.header,
+  body:has(.sidebar-pane) header.header {
+    padding-inline-end: var(--sl-nav-pad-x) !important;
+  }
+
+  html.elmos-inner-page header.header .site-title,
+  body:has(.sidebar-pane) header.header .site-title {
+    font-size: clamp(0.74rem, 3.2vw, 0.88rem) !important;
+  }
+
+  html.elmos-inner-page header.header .site-title img,
+  body:has(.sidebar-pane) header.header .site-title img {
+    height: 1.65rem !important;
+    width: 1.65rem !important;
+  }
+
+  /* اطمینان از قرارگیری نوار کشویی روی تمام المان‌های صفحات داخلی */
+  header.header {
+    z-index: 60 !important;
+  }
+
+  .elmos-mobile-home-backdrop {
+    z-index: 58 !important;
+  }
+
+  .elmos-mobile-home-drawer {
+    z-index: 59 !important;
+  }
+
+  /* کارت دکمه صفحه اصلی در بالای نوار موبایل */
+  .elmos-mobile-home-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0.9rem;
+    border-radius: 16px;
+    background-color: var(--elmos-sidebar-group-bg);
+    border: 1.5px solid var(--elmos-card-border);
+    color: var(--sl-color-white);
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-decoration: none !important;
+  }
+
+  .elmos-mobile-home-card.is-current {
+    border-color: #00A3A0;
+    background-color: var(--elmos-dropdown-hover);
+  }
+
+  .elmos-mobile-home-arrow {
+    color: #00A3A0;
+    font-weight: 800;
+  }
+
+  /* برجسته‌سازی صفحه فعلی داخل لیست نوار موبایل */
+  .elmos-mobile-link.is-current {
+    background-color: var(--elmos-dropdown-hover);
+    color: var(--sl-color-white);
+    font-weight: 700;
+  }
+
+  .elmos-mobile-link.is-current .elmos-dropdown-dot {
+    background-color: #00A3A0;
+    transform: scale(1.35);
+  }
+}
