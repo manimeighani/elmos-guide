@@ -38,3 +38,4 @@ jobs:
             **/.git*/**
             .well-known/**
             cgi-bin/**
+            api/**

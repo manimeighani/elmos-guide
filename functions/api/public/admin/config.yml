@@ -1,9 +1,9 @@
 backend:
   name: github
-  repo: YOUR_GITHUB_USERNAME/elmos-guide
+  repo: manimeighani/elmos-guide
   branch: main
-  base_url: https://YOUR_SITE.pages.dev
-  auth_endpoint: api/auth
+  base_url: https://elmosguide.ir
+  auth_endpoint: api/auth.php
 
 # فعال‌سازی اجرای آفلاین پنل روی سیستم خودتان برای تست
 local_backend: true
