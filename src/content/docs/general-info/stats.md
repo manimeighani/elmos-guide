@@ -23,6 +23,3 @@ sidebar:
 
 ![](/images/uploads/screenshot-2026-11-23-102913.png)
 
-:::danger[]
-
-:::
