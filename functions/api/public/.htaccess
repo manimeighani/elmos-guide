@@ -1,0 +1,18 @@
+RewriteEngine On
+
+# انتقال خودکار از http به https (پس از فعال شدن SSL)
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# نمایش صفحه ۴۰۴ اختصاصی سایت
+ErrorDocument 404 /404.html
+
+# کش کردن فایل‌های استاتیک برای سرعت بالاتر
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
+</IfModule>

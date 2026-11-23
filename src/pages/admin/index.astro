@@ -1,3 +1,5 @@
+---
+---
 <!doctype html>
 <html lang="fa" dir="rtl">
   <head>
@@ -5,12 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
     <link rel="icon" type="image/png" href="/iconprfile.png" />
-    <title>پنل مدیریت محتوا | راهنمای علموص</title>
+    <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
+    <title>پنل مدیریت محتوا | راهنمای جامع علم و صنعت</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
     />
-    <style>
+    <style is:inline>
       body, input, textarea, button, select {
         font-family: 'Vazirmatn', sans-serif !important;
       }
@@ -21,8 +24,8 @@
     </style>
   </head>
   <body>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-    <script>
+    <script is:inline src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script is:inline>
       // ۱. ابزار افزودن کلمه رنگی و کلیک‌پذیر (مفهوم آموزشی)
       CMS.registerEditorComponent({
         id: 'term-link',
