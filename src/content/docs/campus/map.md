@@ -2,7 +2,11 @@
 title: نقشه دانشگاه علم و صنعت ایران
 description: نقشه محوطه و لینک تور مجازی دانشگاه علم و صنعت ایران
 ---
-<div class="system-btn-group"><a href="https://vt.iust.ac.ir" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ورود به تور مجازی ۳۶۰ درجه دانشگاه علم و صنعت</a></div>
+### برای ورود به تور مجازی ابتدا روی دکمه زیر کلیک کرده و سپس بر روی کلمه اینجا که به صورت لینک آمده کلیک کنید.
+
+![](/images/uploads/screenshot-2026-11-23-090504.png)
+
+<div class="system-btn-group"><a href="" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ورود به تور مجازی ۳۶۰ درجه دانشگاه علم و صنعت</a></div>
 
 ## تصویر نقشه محوطه دانشگاه
 
