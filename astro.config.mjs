@@ -52,7 +52,6 @@ export default defineConfig({
           },
         },
       ],
-      routeMiddleware: './src/routeData.ts',
       sidebar: [
         {
           label: '🌐 تور مجازی دانشگاه علم و صنعت',
