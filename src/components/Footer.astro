@@ -3,9 +3,9 @@ import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
 
 const quickLinks = [
   {
-    title: 'سایت اصلی دانشگاه (تور مجازی)',
-    desc: 'ورود به پورتال رسمی دانشگاه علم و صنعت ایران',
-    href: 'https://iust.ac.ir',
+    title: 'تور مجازی دانشگاه علم و صنعت',
+    desc: 'گشت‌وگذار تصویری ۳۶۰ درجه در محوطه و فضاهای دانشگاه',
+    href: 'https://civil.iust.ac.ir/content/29837/%D8%AA%D9%88%D8%B1-%D9%85%D8%AC%D8%A7%D8%B2%DB%8C-%D8%AF%D8%A7%D9%86%D8%B4%DA%AF%D8%A7%D9%87-%D8%B9%D9%84%D9%85-%D9%88-%D8%B5%D9%86%D8%B9%D8%AA-%D8%A7%DB%8C%D8%B1%D8%A7%D9%86',
   },
   {
     title: 'سامانه جامع گلستان',
@@ -46,7 +46,7 @@ const quickLinks = [
         aria-label="دانشگاه علم و صنعت ایران"
       >
         <img
-          src="/footerlogo.jpg"
+          src="/iconprfile.png"
           alt="لوگوی دانشگاه علم و صنعت ایران"
           class="elmos-footer-logo"
           loading="lazy"
@@ -99,7 +99,6 @@ const quickLinks = [
           const imgData = ctx.getImageData(0, 0, w, h);
           const data = imgData.data;
 
-          // حذف نرم پس‌زمینه سفید برای هماهنگی کامل با تم روشن و تیره
           for (let i = 0; i < data.length; i += 4) {
             const r = data[i];
             const g = data[i + 1];
