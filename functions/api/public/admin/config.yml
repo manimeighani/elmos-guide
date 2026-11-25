@@ -5,110 +5,123 @@ backend:
   base_url: https://elmosguide.ir
   auth_endpoint: api/auth.php
 
-# فعال‌سازی اجرای آفلاین پنل روی سیستم خودتان برای تست
 local_backend: true
+publish_mode: simple
+site_url: https://elmosguide.ir
+display_url: https://elmosguide.ir
+logo_url: https://elmosguide.ir/iconprfile.png
+search: true
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 
+# فیلدهای مشترک تمام صفحات راهنما
+x-page-fields: &page_fields
+  - { label: "عنوان صفحه", name: "title", widget: "string", hint: "تیتر اصلی که بالای صفحه و در منو نمایش داده می‌شود" }
+  - { label: "توضیح کوتاه (برای جستجو و گوگل)", name: "description", widget: "string", required: false }
+  - label: "تنظیمات منو (Sidebar)"
+    name: "sidebar"
+    widget: "object"
+    collapsed: true
+    fields:
+      - { label: "ترتیب نمایش در منو (عدد کوچک‌تر بالاتر است)", name: "order", widget: "number", value_type: "int", default: 10, required: false }
+      - { label: "عنوان کوتاه در منو (اختیاری)", name: "label", widget: "string", required: false }
+      - label: "نشان کوچک کنار نام صفحه در منو (مثلاً: جدید یا مهم)"
+        name: "badge"
+        widget: "object"
+        required: false
+        collapsed: true
+        fields:
+          - { label: "متن نشان", name: "text", widget: "string", required: false }
+          - label: "رنگ نشان"
+            name: "variant"
+            widget: "select"
+            required: false
+            options: ["tip", "note", "caution", "danger"]
+            default: "tip"
+  - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+
 collections:
   - name: "general-info"
     label: "🏛️ اطلاعات کلی دانشگاه"
+    label_singular: "صفحه اطلاعات کلی"
     folder: "src/content/docs/general-info"
+    extension: "md"
+    format: "frontmatter"
     create: true
     slug: "{{slug}}"
-    extension: "md"
-    fields:
-      - { label: "عنوان صفحه", name: "title", widget: "string" }
-      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
-      - label: "ترتیب در منو"
-        name: "sidebar"
-        widget: "object"
-        collapsed: true
-        required: false
-        fields:
-          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
-      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+    summary: "{{title}} — ترتیب منو: {{sidebar.order}}"
+    sortable_fields: ["sidebar.order", "title"]
+    editor:
+      preview: true
+    fields: *page_fields
 
   - name: "campus"
     label: "🗺️ نقشه، ورودی‌ها و دانشکده‌ها"
+    label_singular: "صفحه فضاهای دانشگاه"
     folder: "src/content/docs/campus"
+    extension: "md"
+    format: "frontmatter"
     create: true
     slug: "{{slug}}"
-    extension: "md"
-    fields:
-      - { label: "عنوان صفحه", name: "title", widget: "string" }
-      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
-      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+    summary: "{{title}} — ترتیب منو: {{sidebar.order}}"
+    sortable_fields: ["sidebar.order", "title"]
+    editor:
+      preview: true
+    fields: *page_fields
 
   - name: "facilities"
     label: "🏢 امکانات رفاهی دانشگاه"
+    label_singular: "صفحه امکانات رفاهی"
     folder: "src/content/docs/campus/facilities"
+    extension: "md"
+    format: "frontmatter"
     create: true
     slug: "{{slug}}"
-    extension: "md"
-    fields:
-      - { label: "نام بخش یا امکان رفاهی", name: "title", widget: "string" }
-      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
-      - label: "ترتیب در منو"
-        name: "sidebar"
-        widget: "object"
-        collapsed: true
-        required: false
-        fields:
-          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
-      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+    summary: "{{title}} — ترتیب منو: {{sidebar.order}}"
+    sortable_fields: ["sidebar.order", "title"]
+    editor:
+      preview: true
+    fields: *page_fields
 
   - name: "systems"
-    label: "💻 سامانه‌های اینترنتی (افزودن سامانه جدید)"
+    label: "💻 سامانه‌های اینترنتی"
+    label_singular: "سامانه اینترنتی"
     folder: "src/content/docs/systems"
+    extension: "md"
+    format: "frontmatter"
     create: true
     slug: "{{slug}}"
-    extension: "md"
-    fields:
-      - { label: "نام سامانه", name: "title", widget: "string" }
-      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
-      - label: "ترتیب در منو"
-        name: "sidebar"
-        widget: "object"
-        collapsed: true
-        required: false
-        fields:
-          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
-      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+    summary: "{{title}} — ترتیب منو: {{sidebar.order}}"
+    sortable_fields: ["sidebar.order", "title"]
+    editor:
+      preview: true
+    fields: *page_fields
 
   - name: "education"
-    label: "🎓 مفاهیم آموزشی (افزودن مفهوم جدید)"
+    label: "🎓 مفاهیم آموزشی"
+    label_singular: "مفهوم آموزشی"
     folder: "src/content/docs/education"
+    extension: "md"
+    format: "frontmatter"
     create: true
     slug: "{{slug}}"
-    extension: "md"
-    fields:
-      - { label: "عنوان مفهوم آموزشی", name: "title", widget: "string" }
-      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
-      - label: "ترتیب در منو"
-        name: "sidebar"
-        widget: "object"
-        collapsed: true
-        required: false
-        fields:
-          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
-      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+    summary: "{{title}} — ترتیب منو: {{sidebar.order}}"
+    sortable_fields: ["sidebar.order", "title"]
+    editor:
+      preview: true
+    fields: *page_fields
 
   - name: "guides"
-    label: "📚 آموزش‌ها و بخش‌های جدید"
+    label: "📚 آموزش‌ها و راهنماهای تکمیلی"
+    label_singular: "راهنمای تکمیلی"
     folder: "src/content/docs/guides"
+    extension: "md"
+    format: "frontmatter"
     create: true
     slug: "{{slug}}"
-    extension: "md"
-    fields:
-      - { label: "عنوان آموزش", name: "title", widget: "string" }
-      - { label: "توضیح کوتاه", name: "description", widget: "string", required: false }
-      - label: "ترتیب در منو"
-        name: "sidebar"
-        widget: "object"
-        collapsed: true
-        required: false
-        fields:
-          - { label: "شماره ترتیب", name: "order", widget: "number", default: 10, value_type: "int" }
-      - { label: "محتوای صفحه", name: "body", widget: "markdown" }
+    summary: "{{title}} — ترتیب منو: {{sidebar.order}}"
+    sortable_fields: ["sidebar.order", "title"]
+    editor:
+      preview: true
+    fields: *page_fields

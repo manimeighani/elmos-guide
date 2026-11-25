@@ -55,7 +55,7 @@ export default defineConfig({
       sidebar: [
         {
           label: '🌐 تور مجازی دانشگاه علم و صنعت',
-          link: 'https://vt.iust.ac.ir',
+          link: 'https://iust.ac.ir',
           attrs: { target: '_blank', rel: 'noopener noreferrer' },
           badge: { text: '۳۶۰ درجه', variant: 'tip' },
         },
