@@ -2076,3 +2076,114 @@ header.header:hover {
     max-width: 2.6rem !important;
   }
 }
+/* =========================================
+   ۱۸. جدول شیک با گوشه‌های گرد متعادل
+   ========================================= */
+.sl-markdown-content .elmos-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.35rem 0;
+  border-radius: 12px;
+  border: 1.5px solid var(--elmos-card-border);
+  background-color: var(--elmos-card-bg);
+  box-shadow: 0 6px 20px rgba(11, 36, 59, 0.07);
+  -webkit-overflow-scrolling: touch;
+}
+
+:root[data-theme='dark'] .sl-markdown-content .elmos-table-wrap {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.sl-markdown-content table.elmos-table,
+.sl-markdown-content > table {
+  width: 100%;
+  min-width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  margin: 0 !important;
+  display: table !important;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  text-align: right;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.sl-markdown-content > table {
+  border: 1.5px solid var(--elmos-card-border);
+  margin: 1.35rem 0 !important;
+  box-shadow: 0 6px 20px rgba(11, 36, 59, 0.07);
+}
+
+.sl-markdown-content table.elmos-table caption {
+  caption-side: top;
+  text-align: right;
+  padding: 0.75rem 1.05rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--sl-color-white);
+  background-color: rgba(0, 163, 160, 0.08);
+  border-bottom: 1px solid var(--elmos-card-border);
+}
+
+.sl-markdown-content table.elmos-table thead th,
+.sl-markdown-content > table thead th {
+  background: linear-gradient(135deg, #0B243B 0%, #123656 100%);
+  color: #f3f7fa !important;
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border: none !important;
+  border-bottom: 2.5px solid #00A3A0 !important;
+  white-space: nowrap;
+}
+
+:root[data-theme='dark'] .sl-markdown-content table.elmos-table thead th,
+:root[data-theme='dark'] .sl-markdown-content > table thead th {
+  background: linear-gradient(135deg, #0d2b45 0%, #113a5c 100%);
+  color: #e6f4f1 !important;
+}
+
+.sl-markdown-content table.elmos-table tbody td,
+.sl-markdown-content > table tbody td {
+  padding: 0.78rem 1rem;
+  border: none !important;
+  border-bottom: 1px solid var(--elmos-dropdown-divider) !important;
+  color: var(--sl-color-gray-1);
+  vertical-align: middle;
+}
+
+.sl-markdown-content table.elmos-table tbody tr:last-child td,
+.sl-markdown-content > table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+.sl-markdown-content table.elmos-table tbody tr:nth-child(even),
+.sl-markdown-content > table tbody tr:nth-child(even) {
+  background-color: rgba(11, 36, 59, 0.03);
+}
+
+:root[data-theme='dark'] .sl-markdown-content table.elmos-table tbody tr:nth-child(even),
+:root[data-theme='dark'] .sl-markdown-content > table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.sl-markdown-content table.elmos-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.sl-markdown-content table.elmos-table tbody tr:hover,
+.sl-markdown-content > table tbody tr:hover {
+  background-color: rgba(0, 163, 160, 0.09) !important;
+}
+
+@media (max-width: 49.999rem) {
+  .sl-markdown-content table.elmos-table,
+  .sl-markdown-content > table {
+    font-size: 0.84rem;
+  }
+
+  .sl-markdown-content table.elmos-table thead th,
+  .sl-markdown-content table.elmos-table tbody td {
+    padding: 0.65rem 0.75rem;
+  }
+}

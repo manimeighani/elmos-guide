@@ -225,6 +225,12 @@
           .elmos-download-card { display: flex; justify-content: space-between; align-items: center; border: 1.5px solid #d4e0eb; border-radius: 14px; padding: 12px 16px; margin: 10px 0; text-decoration: none; color: #0B243B; background: #f8fbfd; }
           .elmos-download-pill { background: #00A3A0; color: #fff; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
           .elmos-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(0,163,160,0.16); color: #008582; }
+          .elmos-table-wrap { overflow-x: auto; border-radius: 12px; border: 1.5px solid #d4e0eb; margin: 14px 0; }
+          .elmos-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; text-align: right; }
+          .elmos-table caption { text-align: right; padding: 10px 14px; font-weight: 800; background: rgba(0,163,160,0.1); border-bottom: 1px solid #d4e0eb; color: #0B243B; }
+          .elmos-table th { background: #0B243B; color: #fff; padding: 10px 14px; border-bottom: 2px solid #00A3A0; }
+          .elmos-table td { padding: 9px 14px; border-bottom: 1px solid #e5eef5; }
+          .elmos-table tbody tr:nth-child(even) { background: #f7fafd; }
           `,
           { raw: true }
         );
@@ -395,6 +401,84 @@
           toBlock: (d) => `<span class="elmos-badge ${d.color}">${d.text}</span>`,
           toPreview: (d) => `<span class="elmos-badge">${d.text}</span>`,
         });
+        // ۱۱. جدول شیک و واکنش‌گرا
+        CMS.registerEditorComponent({
+          id: 'elmos-table',
+          label: '📊 جدول شیک و واکنش‌گرا',
+          fields: [
+            { name: 'caption', label: 'عنوان بالای جدول (اختیاری)', widget: 'string', required: false },
+            {
+              name: 'headers',
+              label: 'ستون‌های سرجدول (با | از هم جدا کنید)',
+              widget: 'string',
+              default: 'عنوان | توضیحات | وضعیت',
+            },
+            {
+              name: 'rows',
+              label: 'ردیف‌های جدول (هر ردیف در یک خط جدید، ستون‌ها با | جدا شوند)',
+              widget: 'text',
+              default: 'ردیف اول | توضیح اول | فعال\nردیف دوم | توضیح دوم | تکمیل',
+            },
+          ],
+          pattern: /^<div class="elmos-table-wrap">(<table class="elmos-table">.*<\/table>)<\/div>$/m,
+          fromBlock: (m) => {
+            const doc = new DOMParser().parseFromString(m[1], 'text/html');
+            const capEl = doc.querySelector('caption');
+            const headers = Array.from(doc.querySelectorAll('thead th'))
+              .map((el) => el.textContent.trim())
+              .join(' | ');
+            const rows = Array.from(doc.querySelectorAll('tbody tr'))
+              .map((tr) =>
+                Array.from(tr.querySelectorAll('td'))
+                  .map((td) => td.textContent.trim())
+                  .join(' | ')
+              )
+              .join('\n');
+            return { caption: capEl ? capEl.textContent.trim() : '', headers, rows };
+          },
+          toBlock: (d) => {
+            const esc = (s) =>
+              String(s || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            const cap = d.caption && d.caption.trim() ? `<caption>${esc(d.caption.trim())}</caption>` : '';
+            const headCols = String(d.headers || '')
+              .split('|')
+              .map((c) => c.trim())
+              .filter(Boolean);
+            const ths = headCols.map((h) => `<th>${esc(h)}</th>`).join('');
+            const bodyRows = String(d.rows || '')
+              .split('\n')
+              .map((line) => line.trim())
+              .filter(Boolean)
+              .map((line) => {
+                const cols = line.split('|').map((c) => c.trim());
+                const count = Math.max(headCols.length, cols.length);
+                let tds = '';
+                for (let i = 0; i < count; i++) {
+                  tds += `<td>${esc(cols[i] || '—')}</td>`;
+                }
+                return `<tr>${tds}</tr>`;
+              })
+              .join('');
+            return `<div class="elmos-table-wrap"><table class="elmos-table">${cap}<thead><tr>${ths}</tr></thead><tbody>${bodyRows}</tbody></table></div>`;
+          },
+          toPreview: (d) => {
+            const headCols = String(d.headers || '').split('|').map((c) => c.trim()).filter(Boolean);
+            const ths = headCols.map((h) => `<th>${h}</th>`).join('');
+            const trs = String(d.rows || '')
+              .split('\n')
+              .filter((l) => l.trim())
+              .map((l) => {
+                const cols = l.split('|').map((c) => c.trim());
+                return `<tr>${headCols.map((_, i) => `<td>${cols[i] || '—'}</td>`).join('')}</tr>`;
+              })
+              .join('');
+            const cap = d.caption ? `<caption>${d.caption}</caption>` : '';
+            return `<div class="elmos-table-wrap"><table class="elmos-table">${cap}<thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
+          },
+        });
       }
 
       if (window.CMS) {
@@ -402,6 +486,842 @@
       } else {
         window.addEventListener('load', initElmosCMS);
       }
+    </script>
+    <!-- ===== استودیوی ویرایش عکس اختصاصی پنل ادمین ===== -->
+    <style is:inline>
+      #elmos-studio-fab {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        z-index: 9990;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #0B243B 0%, #0f3657 100%);
+        color: #ffffff;
+        border: 2px solid #00A3A0;
+        border-radius: 14px;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 10px 26px rgba(11, 36, 59, 0.28);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      #elmos-studio-fab:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(0, 163, 160, 0.35);
+      }
+
+      #elmos-hover-edit-btn {
+        position: fixed;
+        z-index: 9992;
+        display: none;
+        align-items: center;
+        gap: 5px;
+        background: rgba(11, 36, 59, 0.92);
+        color: #5eead4;
+        border: 1.5px solid #00A3A0;
+        border-radius: 10px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      }
+
+      #elmos-studio-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: rgba(8, 22, 36, 0.78);
+        backdrop-filter: blur(6px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 14px;
+        box-sizing: border-box;
+        direction: rtl;
+      }
+      #elmos-studio-modal.is-open { display: flex; }
+
+      .elmos-studio-shell {
+        width: min(1120px, 100%);
+        height: min(92vh, 840px);
+        background: #f4f8fc;
+        border-radius: 18px;
+        border: 1.5px solid #c6d7e6;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      }
+
+      .elmos-studio-top {
+        background: linear-gradient(135deg, #081b2d 0%, #103252 100%);
+        color: #fff;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        border-bottom: 2.5px solid #00A3A0;
+      }
+      .elmos-studio-top h3 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 800;
+      }
+      .elmos-studio-top-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .es-btn {
+        border: 1.5px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-radius: 10px;
+        padding: 6px 12px;
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.18s ease, border-color 0.18s ease;
+      }
+      .es-btn:hover { background: rgba(255, 255, 255, 0.2); }
+      .es-btn.is-primary { background: #00A3A0; border-color: #00A3A0; color: #fff; }
+      .es-btn.is-primary:hover { background: #008c89; }
+      .es-btn.is-danger { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.55); color: #fecaca; }
+
+      .elmos-studio-toolbar {
+        background: #ffffff;
+        border-bottom: 1.5px solid #d5e2ee;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .es-tool {
+        border: 1.5px solid #d5e2ee;
+        background: #f8fbfd;
+        color: #0B243B;
+        border-radius: 10px;
+        padding: 6px 10px;
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .es-tool:hover { border-color: #00A3A0; }
+      .es-tool.is-active {
+        background: #0B243B;
+        color: #5eead4;
+        border-color: #00A3A0;
+      }
+
+      .es-divider {
+        width: 1px;
+        height: 24px;
+        background: #d5e2ee;
+        margin: 0 2px;
+      }
+
+      .es-swatches {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .es-swatch {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid #cbd5e1;
+        cursor: pointer;
+        padding: 0;
+        transition: transform 0.15s ease;
+      }
+      .es-swatch.is-active {
+        transform: scale(1.18);
+        border-color: #0B243B;
+        box-shadow: 0 0 0 2px #00A3A0;
+      }
+
+      #es-color-picker {
+        width: 28px;
+        height: 26px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 1px;
+        cursor: pointer;
+        background: #fff;
+      }
+
+      .es-subbar {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        background: #e9f5f5;
+        border-bottom: 1px solid #b9e2e1;
+        padding: 8px 14px;
+        font-size: 12.5px;
+        color: #0B243B;
+      }
+      .es-subbar.is-visible { display: flex; }
+
+      .es-subbar input[type="text"] {
+        min-width: 220px;
+        flex: 1;
+        max-width: 360px;
+        padding: 6px 10px;
+        border: 1.5px solid #00A3A0;
+        border-radius: 9px;
+        font-size: 13px;
+        background: #fff;
+        color: #0B243B;
+      }
+
+      .elmos-studio-stage {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background-image:
+          linear-gradient(45deg, #e2ebf3 25%, transparent 25%),
+          linear-gradient(-45deg, #e2ebf3 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #e2ebf3 75%),
+          linear-gradient(-45deg, transparent 75%, #e2ebf3 75%);
+        background-size: 20px 20px;
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        position: relative;
+      }
+
+      #es-canvas {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 10px;
+        box-shadow: 0 12px 32px rgba(11, 36, 59, 0.22);
+        cursor: crosshair;
+        touch-action: none;
+        display: none;
+        background: #fff;
+      }
+
+      .es-empty {
+        text-align: center;
+        background: #ffffff;
+        border: 2px dashed #00A3A0;
+        border-radius: 16px;
+        padding: 28px 24px;
+        max-width: 480px;
+        color: #0B243B;
+      }
+      .es-empty p { margin: 8px 0 16px; font-size: 13.5px; color: #475569; line-height: 1.7; }
+
+      .es-page-imgs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 14px;
+      }
+      .es-page-imgs img {
+        width: 72px;
+        height: 54px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #cbd5e1;
+        cursor: pointer;
+        transition: border-color 0.15s ease, transform 0.15s ease;
+      }
+      .es-page-imgs img:hover {
+        border-color: #00A3A0;
+        transform: scale(1.06);
+      }
+
+      .elmos-studio-footer {
+        background: #ffffff;
+        border-top: 1.5px solid #d5e2ee;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: #475569;
+      }
+    </style>
+
+    <button id="elmos-studio-fab" type="button" title="باز کردن استودیوی ویرایش عکس">
+      🎨 ویرایشگر عکس
+    </button>
+
+    <button id="elmos-hover-edit-btn" type="button">
+      ✏️ ویرایش این عکس
+    </button>
+
+    <div id="elmos-studio-modal" aria-hidden="true">
+      <div class="elmos-studio-shell">
+        <div class="elmos-studio-top">
+          <h3>🎨 استودیوی ویرایش عکس ElmosGuide</h3>
+          <div class="elmos-studio-top-actions">
+            <label class="es-btn" style="cursor:pointer;">
+              📁 انتخاب عکس جدید
+              <input id="es-file-input" type="file" accept="image/*" hidden />
+            </label>
+            <button id="es-send-cms" class="es-btn is-primary" type="button">📤 ارسال به کتابخانه رسانه</button>
+            <button id="es-download" class="es-btn" type="button">💾 دانلود PNG</button>
+            <button id="es-close" class="es-btn is-danger" type="button">✕ بستن</button>
+          </div>
+        </div>
+
+        <div class="elmos-studio-toolbar">
+          <button class="es-tool is-active" data-tool="arrow" type="button">↗ فلش</button>
+          <button class="es-tool" data-tool="rect" type="button">▭ مستطیل</button>
+          <button class="es-tool" data-tool="circle" type="button">◯ دایره/بیضی</button>
+          <button class="es-tool" data-tool="line" type="button">╱ خط</button>
+          <button class="es-tool" data-tool="pen" type="button">✏️ قلم آزاد</button>
+          <button class="es-tool" data-tool="text" type="button">🔤 متن روی عکس</button>
+          <button class="es-tool" data-tool="crop" type="button">✂️ برش (Crop)</button>
+
+          <span class="es-divider"></span>
+
+          <div class="es-swatches" title="رنگ ابزار">
+            <button class="es-swatch is-active" data-color="#ef4444" style="background:#ef4444" type="button"></button>
+            <button class="es-swatch" data-color="#00A3A0" style="background:#00A3A0" type="button"></button>
+            <button class="es-swatch" data-color="#facc15" style="background:#facc15" type="button"></button>
+            <button class="es-swatch" data-color="#22c55e" style="background:#22c55e" type="button"></button>
+            <button class="es-swatch" data-color="#0B243B" style="background:#0B243B" type="button"></button>
+            <button class="es-swatch" data-color="#ffffff" style="background:#ffffff" type="button"></button>
+            <input id="es-color-picker" type="color" value="#ef4444" title="انتخاب رنگ دلخواه" />
+          </div>
+
+          <span class="es-divider"></span>
+
+          <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#0B243B;">
+            ضخامت/اندازه:
+            <input id="es-size" type="range" min="2" max="16" value="5" style="width:82px;accent-color:#00A3A0;" />
+          </label>
+
+          <span class="es-divider"></span>
+
+          <button id="es-undo" class="es-tool" type="button" disabled>↩ بازگشت</button>
+          <button id="es-reset" class="es-tool" type="button">🔄 بازنشانی</button>
+        </div>
+
+        <div id="es-text-bar" class="es-subbar">
+          <strong>متن:</strong>
+          <input id="es-text-input" type="text" placeholder="متن فارسی را اینجا بنویسید و سپس روی عکس کلیک کنید..." />
+          <label style="display:inline-flex;align-items:center;gap:5px;font-weight:700;cursor:pointer;">
+            <input id="es-text-bg" type="checkbox" checked />
+            کادر خوانا پشت متن
+          </label>
+        </div>
+
+        <div id="es-crop-bar" class="es-subbar">
+          <span>کادر برش را با کشیدن روی عکس مشخص کنید و سپس روی دکمه تایید بزنید:</span>
+          <button id="es-apply-crop" class="es-btn is-primary" type="button" style="padding:5px 12px;">✅ اعمال برش</button>
+          <button id="es-cancel-crop" class="es-tool" type="button">لغو کادر</button>
+        </div>
+
+        <div class="elmos-studio-stage">
+          <div id="es-empty" class="es-empty">
+            <h4 style="margin:0;font-size:16px;">عکسی برای ویرایش انتخاب نشده است</h4>
+            <p>
+              می‌توانید از دکمه <strong>«انتخاب عکس جدید»</strong> عکس بیاورید، عکس را با <strong>Ctrl+V</strong> پیست کنید، یا ماوس را روی عکس‌های آپلودشده در پنل ادمین ببرید و دکمه <strong>«ویرایش این عکس»</strong> را بزنید.
+            </p>
+            <div id="es-page-imgs-wrap" style="display:none;">
+              <strong style="font-size:12.5px;color:#008582;">عکس‌های موجود در صفحه فعلی (برای ویرایش کلیک کنید):</strong>
+              <div id="es-page-imgs" class="es-page-imgs"></div>
+            </div>
+          </div>
+          <canvas id="es-canvas"></canvas>
+        </div>
+
+        <div class="elmos-studio-footer">
+          <span id="es-status">آماده ویرایش — راهنما: برای افزودن به سایت، ابتدا پنجره انتخاب عکس (Media) را باز کرده و روی «ارسال به کتابخانه رسانه» بزنید یا فایل PNG را دانلود و آپلود کنید.</span>
+          <span id="es-dims"></span>
+        </div>
+      </div>
+    </div>
+
+    <script is:inline>
+      (function () {
+        const fab = document.getElementById('elmos-studio-fab');
+        const hoverBtn = document.getElementById('elmos-hover-edit-btn');
+        const modal = document.getElementById('elmos-studio-modal');
+        const canvas = document.getElementById('es-canvas');
+        const ctx = canvas.getContext('2d');
+        const emptyBox = document.getElementById('es-empty');
+        const fileInput = document.getElementById('es-file-input');
+        const colorPicker = document.getElementById('es-color-picker');
+        const sizeSlider = document.getElementById('es-size');
+        const undoBtn = document.getElementById('es-undo');
+        const resetBtn = document.getElementById('es-reset');
+        const textBar = document.getElementById('es-text-bar');
+        const textInput = document.getElementById('es-text-input');
+        const textBgCheck = document.getElementById('es-text-bg');
+        const cropBar = document.getElementById('es-crop-bar');
+        const applyCropBtn = document.getElementById('es-apply-crop');
+        const cancelCropBtn = document.getElementById('es-cancel-crop');
+        const statusEl = document.getElementById('es-status');
+        const dimsEl = document.getElementById('es-dims');
+        const pageImgsWrap = document.getElementById('es-page-imgs-wrap');
+        const pageImgsBox = document.getElementById('es-page-imgs');
+
+        let tool = 'arrow';
+        let color = '#ef4444';
+        let size = 5;
+        let history = [];
+        let isDrawing = false;
+        let startX = 0;
+        let startY = 0;
+        let cropRect = null;
+        let currentFilename = 'edited-image.png';
+        let hoveredSrc = null;
+
+        function setStatus(msg) {
+          statusEl.textContent = msg;
+        }
+
+        function updateDims() {
+          dimsEl.textContent = canvas.width ? `${canvas.width} × ${canvas.height} px` : '';
+        }
+
+        function cloneCanvas(srcCanvas) {
+          const c = document.createElement('canvas');
+          c.width = srcCanvas.width;
+          c.height = srcCanvas.height;
+          c.getContext('2d').drawImage(srcCanvas, 0, 0);
+          return { w: c.width, h: c.height, canvas: c };
+        }
+
+        function pushSnapshot() {
+          history.push(cloneCanvas(canvas));
+          if (history.length > 25) history.shift();
+          undoBtn.disabled = history.length <= 1;
+          updateDims();
+        }
+
+        function restoreSnapshot(snap) {
+          if (!snap) return;
+          canvas.width = snap.w;
+          canvas.height = snap.h;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(snap.canvas, 0, 0);
+          updateDims();
+        }
+
+        function loadImageFromSrc(src, filename) {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            const maxDim = 2000;
+            let w = img.naturalWidth;
+            let h = img.naturalHeight;
+            if (w > maxDim || h > maxDim) {
+              const ratio = Math.min(maxDim / w, maxDim / h);
+              w = Math.round(w * ratio);
+              h = Math.round(h * ratio);
+            }
+            canvas.width = w;
+            canvas.height = h;
+            ctx.clearRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            history = [];
+            cropRect = null;
+            pushSnapshot();
+            emptyBox.style.display = 'none';
+            canvas.style.display = 'block';
+            currentFilename = filename || 'elmos-edited-' + Date.now() + '.png';
+            setStatus('عکس بارگذاری شد. ابزار دلخواه را انتخاب و روی عکس بکشید.');
+          };
+          img.onerror = () => {
+            setStatus('خطا در خواندن عکس (محدودیت امنیتی سرور عکس). عکس را ذخیره کرده و با دکمه «انتخاب عکس جدید» باز کنید.');
+          };
+          img.src = src;
+        }
+
+        function refreshPageImages() {
+          const imgs = Array.from(document.querySelectorAll('#nc-root img')).filter((img) => {
+            if (img.closest('header')) return false;
+            const r = img.getBoundingClientRect();
+            return img.src && r.width >= 60 && r.height >= 45;
+          });
+          const unique = [...new Set(imgs.map((i) => i.src))].slice(0, 12);
+          pageImgsBox.innerHTML = '';
+          if (unique.length) {
+            pageImgsWrap.style.display = 'block';
+            unique.forEach((src) => {
+              const thumb = document.createElement('img');
+              thumb.src = src;
+              thumb.title = 'برای ویرایش این عکس کلیک کنید';
+              thumb.addEventListener('click', () => loadImageFromSrc(src));
+              pageImgsBox.appendChild(thumb);
+            });
+          } else {
+            pageImgsWrap.style.display = 'none';
+          }
+        }
+
+        function openStudio(optionalSrc) {
+          modal.classList.add('is-open');
+          modal.setAttribute('aria-hidden', 'false');
+          refreshPageImages();
+          if (optionalSrc) {
+            loadImageFromSrc(optionalSrc);
+          }
+        }
+
+        function closeStudio() {
+          modal.classList.remove('is-open');
+          modal.setAttribute('aria-hidden', 'true');
+        }
+
+        fab.addEventListener('click', () => openStudio());
+        document.getElementById('es-close').addEventListener('click', closeStudio);
+
+        // دکمه شناور ویرایش روی عکس‌های آپلودشده در پنل ادمین (بدون دستکاری DOM ری‌اکت)
+        document.addEventListener('mouseover', (e) => {
+          if (modal.classList.contains('is-open')) return;
+          const target = e.target;
+          if (target === hoverBtn) return;
+          if (target && target.tagName === 'IMG' && target.closest('#nc-root') && !target.closest('header')) {
+            const r = target.getBoundingClientRect();
+            if (r.width >= 75 && r.height >= 55 && target.src) {
+              hoveredSrc = target.src;
+              hoverBtn.style.top = Math.max(8, r.top + 8) + 'px';
+              hoverBtn.style.left = Math.max(8, r.left + 8) + 'px';
+              hoverBtn.style.display = 'inline-flex';
+              return;
+            }
+          }
+          if (!target || !target.closest('#elmos-hover-edit-btn')) {
+            hoverBtn.style.display = 'none';
+          }
+        });
+
+        hoverBtn.addEventListener('click', () => {
+          hoverBtn.style.display = 'none';
+          if (hoveredSrc) openStudio(hoveredSrc);
+        });
+
+        // آپلود فایل از سیستم
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => loadImageFromSrc(reader.result, file.name.replace(/\.[^.]+$/, '') + '-edited.png');
+          reader.readAsDataURL(file);
+          fileInput.value = '';
+        });
+
+        // پیست کردن عکس با Ctrl+V داخل استودیو
+        document.addEventListener('paste', (e) => {
+          if (!modal.classList.contains('is-open')) return;
+          const items = e.clipboardData && e.clipboardData.items;
+          if (!items) return;
+          for (const item of items) {
+            if (item.type.startsWith('image/')) {
+              const file = item.getAsFile();
+              const reader = new FileReader();
+              reader.onload = () => loadImageFromSrc(reader.result, 'pasted-' + Date.now() + '.png');
+              reader.readAsDataURL(file);
+              break;
+            }
+          }
+        });
+
+        // انتخاب ابزارها
+        document.querySelectorAll('.es-tool[data-tool]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            if (cropRect && history.length) {
+              restoreSnapshot(history[history.length - 1]);
+              cropRect = null;
+            }
+            tool = btn.dataset.tool;
+            document.querySelectorAll('.es-tool[data-tool]').forEach((b) => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            textBar.classList.toggle('is-visible', tool === 'text');
+            cropBar.classList.toggle('is-visible', tool === 'crop');
+            if (tool === 'text') textInput.focus();
+          });
+        });
+
+        // انتخاب رنگ
+        function setColor(c) {
+          color = c;
+          colorPicker.value = c;
+          document.querySelectorAll('.es-swatch').forEach((s) => {
+            s.classList.toggle('is-active', s.dataset.color.toLowerCase() === c.toLowerCase());
+          });
+        }
+        document.querySelectorAll('.es-swatch').forEach((sw) => {
+          sw.addEventListener('click', () => setColor(sw.dataset.color));
+        });
+        colorPicker.addEventListener('input', (e) => setColor(e.target.value));
+        sizeSlider.addEventListener('input', (e) => { size = Number(e.target.value); });
+
+        // بازگشت و بازنشانی
+        undoBtn.addEventListener('click', () => {
+          if (history.length <= 1) return;
+          history.pop();
+          cropRect = null;
+          restoreSnapshot(history[history.length - 1]);
+          undoBtn.disabled = history.length <= 1;
+        });
+
+        resetBtn.addEventListener('click', () => {
+          if (!history.length) return;
+          const first = history[0];
+          history = [first];
+          cropRect = null;
+          restoreSnapshot(first);
+          undoBtn.disabled = true;
+        });
+
+        function getPos(e) {
+          const rect = canvas.getBoundingClientRect();
+          const scaleX = canvas.width / rect.width;
+          const scaleY = canvas.height / rect.height;
+          return {
+            x: (e.clientX - rect.left) * scaleX,
+            y: (e.clientY - rect.top) * scaleY,
+          };
+        }
+
+        function drawArrow(x1, y1, x2, y2, strokeW) {
+          const angle = Math.atan2(y2 - y1, x2 - x1);
+          const headLen = Math.max(16, strokeW * 4.2);
+          ctx.strokeStyle = color;
+          ctx.fillStyle = color;
+          ctx.lineWidth = strokeW;
+          ctx.lineCap = 'round';
+
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2 - headLen * 0.6 * Math.cos(angle), y2 - headLen * 0.6 * Math.sin(angle));
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(x2, y2);
+          ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+          ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        function drawCropOverlay(r) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(8, 22, 36, 0.58)';
+          ctx.fillRect(0, 0, canvas.width, r.y);
+          ctx.fillRect(0, r.y + r.h, canvas.width, canvas.height - (r.y + r.h));
+          ctx.fillRect(0, r.y, r.x, r.h);
+          ctx.fillRect(r.x + r.w, r.y, canvas.width - (r.x + r.w), r.h);
+
+          ctx.strokeStyle = '#00A3A0';
+          ctx.lineWidth = Math.max(2, canvas.width / 350);
+          ctx.setLineDash([8, 6]);
+          ctx.strokeRect(r.x, r.y, r.w, r.h);
+          ctx.restore();
+        }
+
+        function stampText(x, y) {
+          const txt = textInput.value.trim();
+          if (!txt) {
+            textInput.focus();
+            setStatus('ابتدا متن مورد نظر را در کادر بالا بنویسید و سپس روی عکس کلیک کنید.');
+            return;
+          }
+          const scaleFactor = Math.max(1, canvas.width / 850);
+          const fontSize = Math.round((size * 4 + 14) * scaleFactor);
+          ctx.save();
+          ctx.font = `700 ${fontSize}px Vazirmatn, sans-serif`;
+          ctx.direction = 'rtl';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          if (textBgCheck.checked) {
+            const metrics = ctx.measureText(txt);
+            const padX = fontSize * 0.55;
+            const padY = fontSize * 0.35;
+            const boxW = metrics.width + padX * 2;
+            const boxH = fontSize * 1.35 + padY;
+            const rx = x - boxW / 2;
+            const ry = y - boxH / 2;
+            const isDarkText = color.toLowerCase() === '#0b243b' || color.toLowerCase() === '#000000';
+            ctx.fillStyle = isDarkText ? 'rgba(255, 255, 255, 0.88)' : 'rgba(11, 36, 59, 0.82)';
+            ctx.beginPath();
+            ctx.roundRect(rx, ry, boxW, boxH, 10 * scaleFactor);
+            ctx.fill();
+          }
+
+          ctx.fillStyle = color;
+          ctx.fillText(txt, x, y);
+          ctx.restore();
+          pushSnapshot();
+          setStatus('متن روی عکس ثبت شد.');
+        }
+
+        canvas.addEventListener('pointerdown', (e) => {
+          if (!history.length) return;
+          const pos = getPos(e);
+          if (tool === 'text') {
+            stampText(pos.x, pos.y);
+            return;
+          }
+          canvas.setPointerCapture(e.pointerId);
+          isDrawing = true;
+          startX = pos.x;
+          startY = pos.y;
+
+          if (tool === 'pen') {
+            const strokeW = Math.max(2, size * Math.max(1, canvas.width / 900));
+            ctx.strokeStyle = color;
+            ctx.lineWidth = strokeW;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+          }
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
+          if (!isDrawing) return;
+          const pos = getPos(e);
+          const strokeW = Math.max(2, size * Math.max(1, canvas.width / 900));
+
+          if (tool === 'pen') {
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            return;
+          }
+
+          restoreSnapshot(history[history.length - 1]);
+
+          if (tool === 'crop') {
+            cropRect = {
+              x: Math.min(startX, pos.x),
+              y: Math.min(startY, pos.y),
+              w: Math.abs(pos.x - startX),
+              h: Math.abs(pos.y - startY),
+            };
+            drawCropOverlay(cropRect);
+          } else if (tool === 'arrow') {
+            drawArrow(startX, startY, pos.x, pos.y, strokeW);
+          } else if (tool === 'line') {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = strokeW;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+          } else if (tool === 'rect') {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = strokeW;
+            ctx.lineJoin = 'round';
+            ctx.strokeRect(
+              Math.min(startX, pos.x),
+              Math.min(startY, pos.y),
+              Math.abs(pos.x - startX),
+              Math.abs(pos.y - startY)
+            );
+          } else if (tool === 'circle') {
+            const cx = (startX + pos.x) / 2;
+            const cy = (startY + pos.y) / 2;
+            const rx = Math.abs(pos.x - startX) / 2;
+            const ry = Math.abs(pos.y - startY) / 2;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = strokeW;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        });
+
+        canvas.addEventListener('pointerup', () => {
+          if (!isDrawing) return;
+          isDrawing = false;
+          if (tool !== 'crop') {
+            pushSnapshot();
+          }
+        });
+
+        // اعمال و لغو برش (Crop)
+        applyCropBtn.addEventListener('click', () => {
+          if (!cropRect || cropRect.w < 10 || cropRect.h < 10) {
+            setStatus('ابتدا با کشیدن روی عکس ناحیه برش را مشخص کنید.');
+            return;
+          }
+          const base = history[history.length - 1];
+          const cw = Math.round(cropRect.w);
+          const ch = Math.round(cropRect.h);
+          const cx = Math.round(cropRect.x);
+          const cy = Math.round(cropRect.y);
+
+          canvas.width = cw;
+          canvas.height = ch;
+          ctx.clearRect(0, 0, cw, ch);
+          ctx.drawImage(base.canvas, cx, cy, cw, ch, 0, 0, cw, ch);
+          cropRect = null;
+          pushSnapshot();
+          setStatus('برش با موفقیت اعمال شد.');
+        });
+
+        cancelCropBtn.addEventListener('click', () => {
+          if (!history.length) return;
+          cropRect = null;
+          restoreSnapshot(history[history.length - 1]);
+        });
+
+        // دانلود PNG
+        function downloadCanvas() {
+          if (!history.length) return;
+          if (cropRect) restoreSnapshot(history[history.length - 1]);
+          const link = document.createElement('a');
+          link.download = currentFilename;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          setStatus('فایل عکس ویرایش‌شده با نام ' + currentFilename + ' دانلود شد.');
+        }
+        document.getElementById('es-download').addEventListener('click', downloadCanvas);
+
+        // ارسال مستقیم به کتابخانه رسانه پنل ادمین (در صورت باز بودن)
+        document.getElementById('es-send-cms').addEventListener('click', () => {
+          if (!history.length) return;
+          if (cropRect) restoreSnapshot(history[history.length - 1]);
+
+          canvas.toBlob((blob) => {
+            if (!blob) return;
+            const file = new File([blob], currentFilename, { type: 'image/png' });
+            const cmsInput = document.querySelector('#nc-root input[type="file"]');
+
+            if (cmsInput) {
+              const dt = new DataTransfer();
+              dt.items.add(file);
+              cmsInput.files = dt.files;
+              cmsInput.dispatchEvent(new Event('change', { bubbles: true }));
+              closeStudio();
+            } else {
+              downloadCanvas();
+              setStatus('کتابخانه رسانه باز نبود، بنابراین عکس دانلود شد؛ از بخش درج تصویر آن را آپلود کنید.');
+            }
+          }, 'image/png');
+        });
+      })();
     </script>
   </body>
 </html>
