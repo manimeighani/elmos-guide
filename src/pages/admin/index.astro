@@ -17,25 +17,29 @@
       :root {
         --cms-navy: #0B243B;
         --cms-teal: #00A3A0;
-        --cms-bg: #f1f6fb;
+        --cms-bg: #eef4fa;
         --cms-card: #ffffff;
         --cms-border: #d5e2ee;
       }
 
-      body {
+      html, body {
         background-color: var(--cms-bg) !important;
-        margin: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+        direction: rtl !important;
       }
 
       body, input, textarea, button, select, a, span, p, div, h1, h2, h3, h4, li, label {
         font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif !important;
       }
 
-      /* ===== نوار بالای مدرن پنل ادمین ===== */
+      /* ===== ۱. نوار بالای مدرن و چسبان پنل ادمین ===== */
       #nc-root header {
-        background: linear-gradient(135deg, #081b2d 0%, #0f2f4d 100%) !important;
+        position: sticky !important;
+        top: 0 !important;
+        background: linear-gradient(135deg, #081b2d 0%, #103252 100%) !important;
         border-bottom: 3px solid var(--cms-teal) !important;
-        box-shadow: 0 8px 24px rgba(11, 36, 59, 0.2) !important;
+        box-shadow: 0 8px 24px rgba(11, 36, 59, 0.22) !important;
         z-index: 300 !important;
       }
 
@@ -45,119 +49,152 @@
         color: #ebf2fa !important;
       }
 
-      #nc-root header a[class*="active"],
       #nc-root header a:hover,
       #nc-root header button:hover {
         color: #5eead4 !important;
       }
 
-      /* ===== رفع قطعی باگ پنهان شدن لیست صفحات (مثل سامانه‌ها) زیر نوار سمت راست در حالت RTL ===== */
-      #nc-root [class*="CollectionContainer"],
-      #nc-root main > div:has(> aside) {
+      /* ===== ۲. رفع قطعی باگ پنهان شدن لیست سامانه‌ها و صفحات زیر نوار سمت راست ===== */
+      /* هدف‌گیری مستقیم والدِ aside بدون وابستگی به نام کلاس‌های تصادفی Decap CMS */
+      #nc-root div:has(> aside) {
         display: flex !important;
         flex-direction: row !important;
         align-items: flex-start !important;
         gap: 24px !important;
-        max-width: 1400px !important;
+        width: 100% !important;
+        max-width: 1360px !important;
         margin: 0 auto !important;
-        padding: 24px 20px 48px !important;
+        padding: 24px 20px 56px !important;
         box-sizing: border-box !important;
       }
 
-      /* تبدیل نوار دسته‌بندی‌ها از fixed به sticky تا روی هیچ آیتمی نیفتد */
-      #nc-root aside,
-      #nc-root [class*="SidebarContainer"] {
+      /* نوار دسته‌بندی‌ها در سمت راست (دیگر fixed نیست و روی هیچ متنی نمی‌افتد) */
+      #nc-root aside {
         position: sticky !important;
         top: 76px !important;
-        inset-inline-start: auto !important;
         left: auto !important;
         right: auto !important;
-        flex: 0 0 275px !important;
-        width: 275px !important;
+        bottom: auto !important;
+        float: none !important;
+        transform: none !important;
+        flex: 0 0 270px !important;
+        width: 270px !important;
+        min-width: 270px !important;
         max-height: calc(100vh - 96px) !important;
         overflow-y: auto !important;
+        margin: 0 !important;
         background: var(--cms-card) !important;
         border: 1.5px solid var(--cms-border) !important;
-        border-radius: 18px !important;
+        border-radius: 20px !important;
         padding: 16px 12px !important;
-        box-shadow: 0 8px 24px rgba(11, 36, 59, 0.06) !important;
+        box-shadow: 0 10px 26px rgba(11, 36, 59, 0.07) !important;
         z-index: 10 !important;
+        box-sizing: border-box !important;
       }
 
-      /* آزادسازی کامل بخش لیست مطالب در کنار نوار سمت راست */
-      #nc-root [class*="CollectionMain"],
+      /* بخش لیست مطالب (همسایه مستقیم aside) — حذف کامل padding-left اضافی نسخه انگلیسی */
       #nc-root aside + div {
-        flex: 1 1 auto !important;
+        flex: 1 1 0% !important;
         min-width: 0 !important;
         width: auto !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
+        padding-inline: 0 !important;
+        box-sizing: border-box !important;
       }
 
-      /* زیباسازی لینک‌های دسته‌بندی داخل نوار سمت راست */
-      #nc-root aside a,
-      #nc-root [class*="SidebarNavLink"] {
+      /* استایل لینک‌های نوار دسته‌بندی سمت راست */
+      #nc-root aside ul {
+        padding: 0 !important;
+        margin: 8px 0 0 !important;
+        list-style: none !important;
+      }
+
+      #nc-root aside a {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
         border-radius: 12px !important;
         margin-bottom: 4px !important;
         padding: 10px 12px !important;
         border-left: none !important;
         border-right: 3px solid transparent !important;
         font-weight: 600 !important;
-        transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease !important;
+        color: #1d2a3a !important;
+        transition: background-color 0.2s ease, border-color 0.2s ease !important;
       }
 
       #nc-root aside a:hover,
-      #nc-root aside a[class*="sidebar-active"] {
+      #nc-root aside a[aria-current="page"],
+      #nc-root aside a.sidebar-active {
         background-color: rgba(0, 163, 160, 0.12) !important;
         color: var(--cms-navy) !important;
         border-right-color: var(--cms-teal) !important;
       }
 
-      /* زیباسازی کارت‌ها و لیست صفحات */
-      #nc-root [class*="ListCard"],
-      #nc-root [class*="GridCard"] {
+      /* استایل کارت‌های لیست صفحات داخل هر بخش (مثل لیست سامانه‌ها) */
+      #nc-root aside + div ul li > a,
+      #nc-root aside + div [role="list"] a {
         border-radius: 14px !important;
         border: 1.5px solid var(--cms-border) !important;
+        background: var(--cms-card) !important;
         box-shadow: 0 4px 12px rgba(11, 36, 59, 0.04) !important;
         transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
       }
 
-      #nc-root [class*="ListCard"]:hover,
-      #nc-root [class*="GridCard"]:hover {
+      #nc-root aside + div ul li > a:hover,
+      #nc-root aside + div [role="list"] a:hover {
         border-color: var(--cms-teal) !important;
         transform: translateY(-2px) !important;
         box-shadow: 0 10px 22px rgba(0, 163, 160, 0.12) !important;
       }
 
-      /* اصلاح چیدمان ادیتور و جهت راست‌به‌چپ متن‌ها */
+      /* راست‌به‌چپ کردن کامل ادیتور، فیلدها و ویرایشگر مارک‌داون */
       [data-slate-editor="true"],
       .CodeMirror,
       #nc-root input[type="text"],
+      #nc-root input[type="search"],
       #nc-root textarea {
         direction: rtl !important;
         text-align: right !important;
       }
 
-      /* ریسپانسیو کردن کامل پنل ادمین در موبایل و تبلت */
-      @media (max-width: 850px) {
-        #nc-root [class*="CollectionContainer"],
-        #nc-root main > div:has(> aside) {
+      /* برچسب نسخه جدید برای اطمینان از بارگذاری نسخه آپدیت‌شده */
+      body::after {
+        content: "ElmosGuide CMS v2.0";
+        position: fixed;
+        bottom: 10px;
+        left: 12px;
+        background: rgba(11, 36, 59, 0.85);
+        color: #5eead4;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 163, 160, 0.45);
+        pointer-events: none;
+        z-index: 999;
+      }
+
+      /* ریسپانسیو کردن کامل پنل ادمین روی گوشی و تبلت */
+      @media (max-width: 860px) {
+        #nc-root div:has(> aside) {
           flex-direction: column !important;
-          padding: 14px !important;
+          padding: 14px 12px 48px !important;
           gap: 16px !important;
         }
 
-        #nc-root aside,
-        #nc-root [class*="SidebarContainer"] {
+        #nc-root aside {
           position: static !important;
           width: 100% !important;
+          min-width: 0 !important;
           flex: none !important;
           max-height: none !important;
         }
 
-        #nc-root [class*="CollectionMain"],
         #nc-root aside + div {
           width: 100% !important;
         }
@@ -167,202 +204,204 @@
   <body>
     <script is:inline src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <script is:inline>
-      // ===== استایل پیش‌نمایش زنده (Live Preview) هماهنگ با سایت اصلی =====
-      CMS.registerPreviewStyle(
-        `
-        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
-        html, body {
-          direction: rtl;
-          text-align: right;
-          font-family: 'Vazirmatn', sans-serif;
-          color: #1D2A3A;
-          line-height: 1.85;
-          padding: 16px;
-          background: #ffffff;
-        }
-        h1, h2, h3 { color: #0B243B; font-weight: 800; }
-        h2 { border-bottom: 2px solid #e1e8ed; padding-bottom: 6px; margin-top: 24px; }
-        img { max-width: 100%; border-radius: 14px; border: 1px solid #d4e0eb; }
-        .term-link { color: #008582; background: rgba(0,163,160,0.12); padding: 2px 8px; border-radius: 6px; border-bottom: 2px dashed #00A3A0; font-weight: 700; text-decoration: none; }
-        .system-btn { display: inline-flex; align-items: center; gap: 6px; background: #0B243B; color: #fff; padding: 8px 16px; border-radius: 12px; border: 1.5px solid #00A3A0; text-decoration: none; font-weight: 700; }
-        .elmos-accordion { border: 1.5px solid #d4e0eb; border-radius: 14px; padding: 10px 14px; margin: 12px 0; background: #f8fbfd; }
-        .elmos-accordion summary { font-weight: 700; color: #0B243B; cursor: pointer; }
-        .elmos-info-card { border: 1.5px solid #d4e0eb; border-right: 4px solid #00A3A0; border-radius: 14px; padding: 12px 16px; margin: 12px 0; background: #f5f9fc; }
-        .elmos-step-box { display: flex; gap: 12px; border: 1.5px solid #d4e0eb; border-radius: 14px; padding: 12px; margin: 10px 0; background: #ffffff; }
-        .elmos-step-num { width: 28px; height: 28px; border-radius: 8px; background: #00A3A0; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
-        .elmos-download-card { display: flex; justify-content: space-between; align-items: center; border: 1.5px solid #d4e0eb; border-radius: 14px; padding: 12px 16px; margin: 10px 0; text-decoration: none; color: #0B243B; background: #f8fbfd; }
-        .elmos-download-pill { background: #00A3A0; color: #fff; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
-        .elmos-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(0,163,160,0.16); color: #008582; }
-        `,
-        { raw: true }
-      );
+      function initElmosCMS() {
+        if (!window.CMS) return;
 
-      // ۱. کلمه رنگی کلیک‌پذیر (مفهوم آموزشی)
-      CMS.registerEditorComponent({
-        id: 'term-link',
-        label: '🏷️ کلمه رنگی کلیک‌پذیر (مفهوم آموزشی)',
-        fields: [
-          { name: 'text', label: 'کلمه نمایشی (مثلاً: انتخاب واحد)', widget: 'string' },
-          { name: 'url', label: 'آدرس صفحه مقصد (مثلاً: /education/course-registration/)', widget: 'string', default: '/education/' },
-          { name: 'tooltip', label: 'توضیح کوتاه روی هاور ماوس (اختیاری)', widget: 'string', required: false },
-        ],
-        pattern: /<a href="([^"]+)" class="term-link"(?: data-tooltip="([^"]*)")?>([^<]+)<\/a>/,
-        fromBlock: (m) => ({ url: m[1], tooltip: m[2] || '', text: m[3] }),
-        toBlock: (d) => `<a href="${d.url}" class="term-link"${d.tooltip ? ` data-tooltip="${d.tooltip}"` : ''}>${d.text}</a>`,
-        toPreview: (d) => `<span class="term-link">${d.text}</span>`,
-      });
+        // پیش‌نمایش زنده هماهنگ با سایت اصلی
+        CMS.registerPreviewStyle(
+          `
+          @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+          html, body { direction: rtl; text-align: right; font-family: 'Vazirmatn', sans-serif; color: #1D2A3A; line-height: 1.85; padding: 16px; background: #ffffff; }
+          h1, h2, h3 { color: #0B243B; font-weight: 800; }
+          h2 { border-bottom: 2px solid #e1e8ed; padding-bottom: 6px; margin-top: 24px; }
+          img { max-width: 100%; border-radius: 14px; border: 1px solid #d4e0eb; }
+          .term-link { color: #008582; background: rgba(0,163,160,0.12); padding: 2px 8px; border-radius: 6px; border-bottom: 2px dashed #00A3A0; font-weight: 700; text-decoration: none; }
+          .system-btn { display: inline-flex; align-items: center; gap: 6px; background: #0B243B; color: #fff; padding: 8px 16px; border-radius: 12px; border: 1.5px solid #00A3A0; text-decoration: none; font-weight: 700; }
+          .elmos-accordion { border: 1.5px solid #d4e0eb; border-radius: 14px; padding: 10px 14px; margin: 12px 0; background: #f8fbfd; }
+          .elmos-accordion summary { font-weight: 700; color: #0B243B; cursor: pointer; }
+          .elmos-info-card { border: 1.5px solid #d4e0eb; border-right: 4px solid #00A3A0; border-radius: 14px; padding: 12px 16px; margin: 12px 0; background: #f5f9fc; }
+          .elmos-step-box { display: flex; gap: 12px; border: 1.5px solid #d4e0eb; border-radius: 14px; padding: 12px; margin: 10px 0; background: #ffffff; }
+          .elmos-step-num { width: 28px; height: 28px; border-radius: 8px; background: #00A3A0; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+          .elmos-download-card { display: flex; justify-content: space-between; align-items: center; border: 1.5px solid #d4e0eb; border-radius: 14px; padding: 12px 16px; margin: 10px 0; text-decoration: none; color: #0B243B; background: #f8fbfd; }
+          .elmos-download-pill { background: #00A3A0; color: #fff; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+          .elmos-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(0,163,160,0.16); color: #008582; }
+          `,
+          { raw: true }
+        );
 
-      // ۲. دکمه لینک سامانه / سایت
-      CMS.registerEditorComponent({
-        id: 'system-button',
-        label: '🔗 دکمه لینک سامانه / سایت',
-        fields: [
-          { name: 'label', label: 'متن روی دکمه (مثلاً: ورود به سامانه گلستان)', widget: 'string' },
-          { name: 'url', label: 'آدرس کامل سایت (با https://)', widget: 'string', default: 'https://' },
-        ],
-        pattern: /<div class="system-btn-group"><a href="([^"]+)" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ([^<]+)<\/a><\/div>/,
-        fromBlock: (m) => ({ url: m[1], label: m[2] }),
-        toBlock: (d) => `<div class="system-btn-group"><a href="${d.url}" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ${d.label}</a></div>`,
-        toPreview: (d) => `<div style="margin:8px 0;"><span class="system-btn">🔗 ${d.label}</span></div>`,
-      });
+        // ۱. کلمه رنگی کلیک‌پذیر
+        CMS.registerEditorComponent({
+          id: 'term-link',
+          label: '🏷️ کلمه رنگی کلیک‌پذیر (مفهوم آموزشی)',
+          fields: [
+            { name: 'text', label: 'کلمه نمایشی (مثلاً: انتخاب واحد)', widget: 'string' },
+            { name: 'url', label: 'آدرس صفحه مقصد', widget: 'string', default: '/education/' },
+            { name: 'tooltip', label: 'توضیح کوتاه روی هاور ماوس (اختیاری)', widget: 'string', required: false },
+          ],
+          pattern: /<a href="([^"]+)" class="term-link"(?: data-tooltip="([^"]*)")?>([^<]+)<\/a>/,
+          fromBlock: (m) => ({ url: m[1], tooltip: m[2] || '', text: m[3] }),
+          toBlock: (d) => `<a href="${d.url}" class="term-link"${d.tooltip ? ` data-tooltip="${d.tooltip}"` : ''}>${d.text}</a>`,
+          toPreview: (d) => `<span class="term-link">${d.text}</span>`,
+        });
 
-      // ۳. ویدیوی آپارات
-      CMS.registerEditorComponent({
-        id: 'aparat-video',
-        label: '🎬 ویدیوی آپارات',
-        fields: [
-          { name: 'hash', label: 'شناسه ویدیوی آپارات (بخش آخر لینک بعد از /v/ مثلاً aBcDe)', widget: 'string' },
-        ],
-        pattern: /<div class="video-container"><iframe src="https:\/\/www\.aparat\.com\/video\/video\/embed\/videohash\/([^\/]+)\/vt\/frame" allowfullscreen="true"><\/iframe><\/div>/,
-        fromBlock: (m) => ({ hash: m[1] }),
-        toBlock: (d) => `<div class="video-container"><iframe src="https://www.aparat.com/video/video/embed/videohash/${d.hash}/vt/frame" allowfullscreen="true"></iframe></div>`,
-        toPreview: (d) => `<div style="background:#EBF2FA;color:#0B243B;border:1.5px solid #00A3A0;padding:22px;text-align:center;border-radius:14px;font-weight:700;">🎬 ویدیوی آپارات (شناسه: ${d.hash})</div>`,
-      });
+        // ۲. دکمه لینک سامانه / سایت
+        CMS.registerEditorComponent({
+          id: 'system-button',
+          label: '🔗 دکمه لینک سامانه / سایت',
+          fields: [
+            { name: 'label', label: 'متن روی دکمه', widget: 'string' },
+            { name: 'url', label: 'آدرس کامل سایت (با https://)', widget: 'string', default: 'https://' },
+          ],
+          pattern: /<div class="system-btn-group"><a href="([^"]+)" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ([^<]+)<\/a><\/div>/,
+          fromBlock: (m) => ({ url: m[1], label: m[2] }),
+          toBlock: (d) => `<div class="system-btn-group"><a href="${d.url}" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ${d.label}</a></div>`,
+          toPreview: (d) => `<div style="margin:8px 0;"><span class="system-btn">🔗 ${d.label}</span></div>`,
+        });
 
-      // ۴. کادر نکته / توجه / هشدار
-      CMS.registerEditorComponent({
-        id: 'callout-box',
-        label: '💡 کادر نکته / هشدار',
-        fields: [
-          {
-            name: 'type',
-            label: 'نوع کادر',
-            widget: 'select',
-            options: [
-              { label: 'نکته (فیروزه‌ای)', value: 'tip' },
-              { label: 'توجه (زرد)', value: 'caution' },
-              { label: 'هشدار مهم (قرمز)', value: 'danger' },
-              { label: 'توضیح (سرمه‌ای)', value: 'note' },
-            ],
-            default: 'tip',
-          },
-          { name: 'title', label: 'عنوان کادر', widget: 'string', default: 'نکته مهم' },
-          { name: 'content', label: 'متن داخل کادر', widget: 'text' },
-        ],
-        pattern: /^:::(tip|caution|danger|note)\[([^\]]+)\]\n([\s\S]*?)\n:::$/m,
-        fromBlock: (m) => ({ type: m[1], title: m[2], content: m[3] }),
-        toBlock: (d) => `:::${d.type}[${d.title}]\n${d.content}\n:::`,
-        toPreview: (d) => `<div style="border-right:4px solid #00A3A0;background:#EBF2FA;color:#0B243B;padding:12px 16px;border-radius:10px;margin:10px 0;"><strong>💡 ${d.title}</strong><p style="margin:6px 0 0;">${d.content}</p></div>`,
-      });
+        // ۳. ویدیوی آپارات
+        CMS.registerEditorComponent({
+          id: 'aparat-video',
+          label: '🎬 ویدیوی آپارات',
+          fields: [
+            { name: 'hash', label: 'شناسه ویدیوی آپارات (بخش بعد از /v/)', widget: 'string' },
+          ],
+          pattern: /<div class="video-container"><iframe src="https:\/\/www\.aparat\.com\/video\/video\/embed\/videohash\/([^\/]+)\/vt\/frame" allowfullscreen="true"><\/iframe><\/div>/,
+          fromBlock: (m) => ({ hash: m[1] }),
+          toBlock: (d) => `<div class="video-container"><iframe src="https://www.aparat.com/video/video/embed/videohash/${d.hash}/vt/frame" allowfullscreen="true"></iframe></div>`,
+          toPreview: (d) => `<div style="background:#EBF2FA;color:#0B243B;border:1.5px solid #00A3A0;padding:22px;text-align:center;border-radius:14px;font-weight:700;">🎬 ویدیوی آپارات (شناسه: ${d.hash})</div>`,
+        });
 
-      // ۵. سوال و جواب بازشونده (آکاردئون)
-      CMS.registerEditorComponent({
-        id: 'accordion-faq',
-        label: '❓ سوال و جواب بازشونده (آکاردئون)',
-        fields: [
-          { name: 'question', label: 'عنوان یا سوال', widget: 'string' },
-          { name: 'answer', label: 'متن پاسخ یا توضیحات', widget: 'text' },
-        ],
-        pattern: /<details class="elmos-accordion"><summary>([^<]+)<\/summary><div class="elmos-accordion-body">([\s\S]*?)<\/div><\/details>/,
-        fromBlock: (m) => ({ question: m[1], answer: m[2] }),
-        toBlock: (d) => `<details class="elmos-accordion"><summary>${d.question}</summary><div class="elmos-accordion-body">${d.answer}</div></details>`,
-        toPreview: (d) => `<details class="elmos-accordion" open><summary>${d.question}</summary><div style="margin-top:8px;">${d.answer}</div></details>`,
-      });
+        // ۴. کادر نکته / هشدار
+        CMS.registerEditorComponent({
+          id: 'callout-box',
+          label: '💡 کادر نکته / هشدار',
+          fields: [
+            {
+              name: 'type',
+              label: 'نوع کادر',
+              widget: 'select',
+              options: [
+                { label: 'نکته (فیروزه‌ای)', value: 'tip' },
+                { label: 'توجه (زرد)', value: 'caution' },
+                { label: 'هشدار مهم (قرمز)', value: 'danger' },
+                { label: 'توضیح (سرمه‌ای)', value: 'note' },
+              ],
+              default: 'tip',
+            },
+            { name: 'title', label: 'عنوان کادر', widget: 'string', default: 'نکته مهم' },
+            { name: 'content', label: 'متن داخل کادر', widget: 'text' },
+          ],
+          pattern: /^:::(tip|caution|danger|note)\[([^\]]+)\]\n([\s\S]*?)\n:::$/m,
+          fromBlock: (m) => ({ type: m[1], title: m[2], content: m[3] }),
+          toBlock: (d) => `:::${d.type}[${d.title}]\n${d.content}\n:::`,
+          toPreview: (d) => `<div style="border-right:4px solid #00A3A0;background:#EBF2FA;color:#0B243B;padding:12px 16px;border-radius:10px;margin:10px 0;"><strong>💡 ${d.title}</strong><p style="margin:6px 0 0;">${d.content}</p></div>`,
+        });
 
-      // ۶. کارت اطلاعات مکان، ساعت کاری و تماس
-      CMS.registerEditorComponent({
-        id: 'info-card',
-        label: '📍 کارت اطلاعات مکان / ساعت کاری / تماس',
-        fields: [
-          { name: 'title', label: 'عنوان بخش یا مکان (مثلاً: کتابخانه مرکزی)', widget: 'string' },
-          { name: 'location', label: 'آدرس داخل دانشگاه', widget: 'string', required: false },
-          { name: 'hours', label: 'ساعت کاری', widget: 'string', required: false },
-          { name: 'phone', label: 'شماره تماس / داخلی', widget: 'string', required: false },
-        ],
-        pattern: /<div class="elmos-info-card"><div class="elmos-info-card-title">📍 ([^<]+)<\/div><div class="elmos-info-card-grid"><span><strong>مکان:<\/strong> ([^<]*)<\/span><span><strong>ساعت کاری:<\/strong> ([^<]*)<\/span><span><strong>تماس:<\/strong> ([^<]*)<\/span><\/div><\/div>/,
-        fromBlock: (m) => ({ title: m[1], location: m[2], hours: m[3], phone: m[4] }),
-        toBlock: (d) =>
-          `<div class="elmos-info-card"><div class="elmos-info-card-title">📍 ${d.title}</div><div class="elmos-info-card-grid"><span><strong>مکان:</strong> ${d.location || '—'}</span><span><strong>ساعت کاری:</strong> ${d.hours || '—'}</span><span><strong>تماس:</strong> ${d.phone || '—'}</span></div></div>`,
-        toPreview: (d) =>
-          `<div class="elmos-info-card"><strong>📍 ${d.title}</strong><div style="font-size:13px;margin-top:6px;">مکان: ${d.location || '—'} | ساعت کاری: ${d.hours || '—'} | تماس: ${d.phone || '—'}</div></div>`,
-      });
+        // ۵. سوال و جواب بازشونده (آکاردئون)
+        CMS.registerEditorComponent({
+          id: 'accordion-faq',
+          label: '❓ سوال و جواب بازشونده (آکاردئون)',
+          fields: [
+            { name: 'question', label: 'عنوان یا سوال', widget: 'string' },
+            { name: 'answer', label: 'متن پاسخ', widget: 'text' },
+          ],
+          pattern: /<details class="elmos-accordion"><summary>([^<]+)<\/summary><div class="elmos-accordion-body">([\s\S]*?)<\/div><\/details>/,
+          fromBlock: (m) => ({ question: m[1], answer: m[2] }),
+          toBlock: (d) => `<details class="elmos-accordion"><summary>${d.question}</summary><div class="elmos-accordion-body">${d.answer}</div></details>`,
+          toPreview: (d) => `<details class="elmos-accordion" open><summary>${d.question}</summary><div style="margin-top:8px;">${d.answer}</div></details>`,
+        });
 
-      // ۷. کادر مرحله آموزشی گام‌به‌گام
-      CMS.registerEditorComponent({
-        id: 'step-box',
-        label: '🔢 کادر مرحله آموزشی (گام‌به‌گام)',
-        fields: [
-          { name: 'num', label: 'شماره مرحله (مثلاً ۱)', widget: 'string', default: '۱' },
-          { name: 'title', label: 'عنوان مرحله', widget: 'string' },
-          { name: 'desc', label: 'توضیح کامل این مرحله', widget: 'text' },
-        ],
-        pattern: /<div class="elmos-step-box"><span class="elmos-step-num">([^<]+)<\/span><div><div class="elmos-step-title">([^<]+)<\/div><div class="elmos-step-desc">([\s\S]*?)<\/div><\/div><\/div>/,
-        fromBlock: (m) => ({ num: m[1], title: m[2], desc: m[3] }),
-        toBlock: (d) => `<div class="elmos-step-box"><span class="elmos-step-num">${d.num}</span><div><div class="elmos-step-title">${d.title}</div><div class="elmos-step-desc">${d.desc}</div></div></div>`,
-        toPreview: (d) => `<div class="elmos-step-box"><span class="elmos-step-num">${d.num}</span><div><strong>${d.title}</strong><p style="margin:4px 0 0;font-size:13px;">${d.desc}</p></div></div>`,
-      });
+        // ۶. کارت اطلاعات مکان / ساعت کاری / تماس
+        CMS.registerEditorComponent({
+          id: 'info-card',
+          label: '📍 کارت اطلاعات مکان / ساعت کاری / تماس',
+          fields: [
+            { name: 'title', label: 'عنوان مکان یا بخش', widget: 'string' },
+            { name: 'location', label: 'آدرس داخل دانشگاه', widget: 'string', required: false },
+            { name: 'hours', label: 'ساعت کاری', widget: 'string', required: false },
+            { name: 'phone', label: 'شماره تماس / داخلی', widget: 'string', required: false },
+          ],
+          pattern: /<div class="elmos-info-card"><div class="elmos-info-card-title">📍 ([^<]+)<\/div><div class="elmos-info-card-grid"><span><strong>مکان:<\/strong> ([^<]*)<\/span><span><strong>ساعت کاری:<\/strong> ([^<]*)<\/span><span><strong>تماس:<\/strong> ([^<]*)<\/span><\/div><\/div>/,
+          fromBlock: (m) => ({ title: m[1], location: m[2], hours: m[3], phone: m[4] }),
+          toBlock: (d) =>
+            `<div class="elmos-info-card"><div class="elmos-info-card-title">📍 ${d.title}</div><div class="elmos-info-card-grid"><span><strong>مکان:</strong> ${d.location || '—'}</span><span><strong>ساعت کاری:</strong> ${d.hours || '—'}</span><span><strong>تماس:</strong> ${d.phone || '—'}</span></div></div>`,
+          toPreview: (d) =>
+            `<div class="elmos-info-card"><strong>📍 ${d.title}</strong><div style="font-size:13px;margin-top:6px;">مکان: ${d.location || '—'} | ساعت کاری: ${d.hours || '—'} | تماس: ${d.phone || '—'}</div></div>`,
+        });
 
-      // ۸. کارت دانلود فایل PDF / چارت درسی / فرم
-      CMS.registerEditorComponent({
-        id: 'download-card',
-        label: '📥 کارت دانلود فایل (PDF / چارت / فرم)',
-        fields: [
-          { name: 'title', label: 'نام فایل (مثلاً: چارت درسی مهندسی کامپیوتر)', widget: 'string' },
-          { name: 'meta', label: 'توضیح کوتاه (مثلاً: فرمت PDF - نسخه ۱۴۰۵)', widget: 'string', default: 'فایل PDF' },
-          { name: 'url', label: 'لینک مستقیم فایل', widget: 'string', default: 'https://' },
-        ],
-        pattern: /<a href="([^"]+)" target="_blank" rel="noopener noreferrer" class="elmos-download-card"><div><span class="elmos-download-title">📄 ([^<]+)<\/span><span class="elmos-download-meta">([^<]*)<\/span><\/div><span class="elmos-download-pill">دانلود ⬇<\/span><\/a>/,
-        fromBlock: (m) => ({ url: m[1], title: m[2], meta: m[3] }),
-        toBlock: (d) => `<a href="${d.url}" target="_blank" rel="noopener noreferrer" class="elmos-download-card"><div><span class="elmos-download-title">📄 ${d.title}</span><span class="elmos-download-meta">${d.meta}</span></div><span class="elmos-download-pill">دانلود ⬇</span></a>`,
-        toPreview: (d) => `<div class="elmos-download-card"><div><strong>📄 ${d.title}</strong><div style="font-size:12px;color:#555;">${d.meta}</div></div><span class="elmos-download-pill">دانلود ⬇</span></div>`,
-      });
+        // ۷. کادر مرحله آموزشی گام‌به‌گام
+        CMS.registerEditorComponent({
+          id: 'step-box',
+          label: '🔢 کادر مرحله آموزشی (گام‌به‌گام)',
+          fields: [
+            { name: 'num', label: 'شماره مرحله (مثلاً ۱)', widget: 'string', default: '۱' },
+            { name: 'title', label: 'عنوان مرحله', widget: 'string' },
+            { name: 'desc', label: 'توضیح مرحله', widget: 'text' },
+          ],
+          pattern: /<div class="elmos-step-box"><span class="elmos-step-num">([^<]+)<\/span><div><div class="elmos-step-title">([^<]+)<\/div><div class="elmos-step-desc">([\s\S]*?)<\/div><\/div><\/div>/,
+          fromBlock: (m) => ({ num: m[1], title: m[2], desc: m[3] }),
+          toBlock: (d) => `<div class="elmos-step-box"><span class="elmos-step-num">${d.num}</span><div><div class="elmos-step-title">${d.title}</div><div class="elmos-step-desc">${d.desc}</div></div></div>`,
+          toPreview: (d) => `<div class="elmos-step-box"><span class="elmos-step-num">${d.num}</span><div><strong>${d.title}</strong><p style="margin:4px 0 0;font-size:13px;">${d.desc}</p></div></div>`,
+        });
 
-      // ۹. نقشه تعاملی گوگل مپ / نشان / بلد
-      CMS.registerEditorComponent({
-        id: 'embed-map',
-        label: '🗺️ نقشه تعاملی (گوگل مپ / نشان / بلد)',
-        fields: [
-          { name: 'src', label: 'لینک Embed نقشه (مقدار داخل src در کد iframe)', widget: 'string' },
-        ],
-        pattern: /<div class="elmos-map-container"><iframe src="([^"]+)" loading="lazy" allowfullscreen><\/iframe><\/div>/,
-        fromBlock: (m) => ({ src: m[1] }),
-        toBlock: (d) => `<div class="elmos-map-container"><iframe src="${d.src}" loading="lazy" allowfullscreen></iframe></div>`,
-        toPreview: (d) => `<div style="background:#EBF2FA;border:1.5px dashed #00A3A0;padding:24px;text-align:center;border-radius:14px;font-weight:700;">🗺️ نقشه تعاملی متصل شد</div>`,
-      });
+        // ۸. کارت دانلود فایل PDF / چارت درسی / فرم
+        CMS.registerEditorComponent({
+          id: 'download-card',
+          label: '📥 کارت دانلود فایل (PDF / چارت / فرم)',
+          fields: [
+            { name: 'title', label: 'نام فایل', widget: 'string' },
+            { name: 'meta', label: 'توضیح کوتاه (مثلاً: فایل PDF)', widget: 'string', default: 'فایل PDF' },
+            { name: 'url', label: 'لینک مستقیم فایل', widget: 'string', default: 'https://' },
+          ],
+          pattern: /<a href="([^"]+)" target="_blank" rel="noopener noreferrer" class="elmos-download-card"><div><span class="elmos-download-title">📄 ([^<]+)<\/span><span class="elmos-download-meta">([^<]*)<\/span><\/div><span class="elmos-download-pill">دانلود ⬇<\/span><\/a>/,
+          fromBlock: (m) => ({ url: m[1], title: m[2], meta: m[3] }),
+          toBlock: (d) => `<a href="${d.url}" target="_blank" rel="noopener noreferrer" class="elmos-download-card"><div><span class="elmos-download-title">📄 ${d.title}</span><span class="elmos-download-meta">${d.meta}</span></div><span class="elmos-download-pill">دانلود ⬇</span></a>`,
+          toPreview: (d) => `<div class="elmos-download-card"><div><strong>📄 ${d.title}</strong><div style="font-size:12px;color:#555;">${d.meta}</div></div><span class="elmos-download-pill">دانلود ⬇</span></div>`,
+        });
 
-      // ۱۰. برچسب وضعیت رنگی
-      CMS.registerEditorComponent({
-        id: 'status-badge',
-        label: '🔖 برچسب وضعیت (الزامی / جدید / مهم)',
-        fields: [
-          { name: 'text', label: 'متن برچسب (مثلاً: ویژه ورودی‌های جدید)', widget: 'string' },
-          {
-            name: 'color',
-            label: 'رنگ برچسب',
-            widget: 'select',
-            options: [
-              { label: 'فیروزه‌ای (اطلاع‌رسانی)', value: 'is-teal' },
-              { label: 'زرد (توجه)', value: 'is-amber' },
-              { label: 'قرمز (مهم / الزامی)', value: 'is-red' },
-            ],
-            default: 'is-teal',
-          },
-        ],
-        pattern: /<span class="elmos-badge (is-teal|is-amber|is-red)">([^<]+)<\/span>/,
-        fromBlock: (m) => ({ color: m[1], text: m[2] }),
-        toBlock: (d) => `<span class="elmos-badge ${d.color}">${d.text}</span>`,
-        toPreview: (d) => `<span class="elmos-badge">${d.text}</span>`,
-      });
+        // ۹. نقشه تعاملی گوگل مپ / نشان / بلد
+        CMS.registerEditorComponent({
+          id: 'embed-map',
+          label: '🗺️ نقشه تعاملی (گوگل مپ / نشان / بلد)',
+          fields: [
+            { name: 'src', label: 'لینک Embed نقشه (مقدار داخل src در کد iframe)', widget: 'string' },
+          ],
+          pattern: /<div class="elmos-map-container"><iframe src="([^"]+)" loading="lazy" allowfullscreen><\/iframe><\/div>/,
+          fromBlock: (m) => ({ src: m[1] }),
+          toBlock: (d) => `<div class="elmos-map-container"><iframe src="${d.src}" loading="lazy" allowfullscreen></iframe></div>`,
+          toPreview: () => `<div style="background:#EBF2FA;border:1.5px dashed #00A3A0;padding:24px;text-align:center;border-radius:14px;font-weight:700;">🗺️ نقشه تعاملی متصل شد</div>`,
+        });
+
+        // ۱۰. برچسب وضعیت رنگی
+        CMS.registerEditorComponent({
+          id: 'status-badge',
+          label: '🔖 برچسب وضعیت (الزامی / جدید / مهم)',
+          fields: [
+            { name: 'text', label: 'متن برچسب', widget: 'string' },
+            {
+              name: 'color',
+              label: 'رنگ برچسب',
+              widget: 'select',
+              options: [
+                { label: 'فیروزه‌ای (اطلاع‌رسانی)', value: 'is-teal' },
+                { label: 'زرد (توجه)', value: 'is-amber' },
+                { label: 'قرمز (مهم / الزامی)', value: 'is-red' },
+              ],
+              default: 'is-teal',
+            },
+          ],
+          pattern: /<span class="elmos-badge (is-teal|is-amber|is-red)">([^<]+)<\/span>/,
+          fromBlock: (m) => ({ color: m[1], text: m[2] }),
+          toBlock: (d) => `<span class="elmos-badge ${d.color}">${d.text}</span>`,
+          toPreview: (d) => `<span class="elmos-badge">${d.text}</span>`,
+        });
+      }
+
+      if (window.CMS) {
+        initElmosCMS();
+      } else {
+        window.addEventListener('load', initElmosCMS);
+      }
     </script>
   </body>
 </html>
