@@ -38,21 +38,7 @@ const quickLinks = [
         </div>
       </div>
 
-      <a
-        href="https://iust.ac.ir"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="elmos-footer-logo-link"
-        aria-label="دانشگاه علم و صنعت ایران"
-      >
-        <img
-          src="/iconprfile.png"
-          alt="لوگوی دانشگاه علم و صنعت ایران"
-          class="elmos-footer-logo"
-          loading="lazy"
-          decoding="async"
-        />
-      </a>
+      <div class="elmos-footer-logo-box" aria-label="لوگوی دانشگاه علم و صنعت ایران"></div>
     </div>
 
     <div class="elmos-footer-grid">
@@ -78,59 +64,31 @@ const quickLinks = [
 </footer>
 
 <script>
-  function makeFooterLogoTransparent() {
-    const imgs = document.querySelectorAll<HTMLImageElement>('img.elmos-footer-logo');
-    imgs.forEach((img) => {
-      if (img.dataset.bgProcessed === 'true') return;
+  function syncFooterLogoWithHeader() {
+    const box = document.querySelector('.elmos-footer-logo-box');
+    if (!box) return;
 
-      const process = () => {
-        try {
-          const w = img.naturalWidth;
-          const h = img.naturalHeight;
-          if (!w || !h) return;
+    const headerImg = document.querySelector<HTMLImageElement>('header.header .site-title img');
+    const headerSvg = document.querySelector<SVGElement>('header.header .site-title svg');
 
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) return;
-
-          ctx.drawImage(img, 0, 0);
-          const imgData = ctx.getImageData(0, 0, w, h);
-          const data = imgData.data;
-
-          for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            const minCh = Math.min(r, g, b);
-            const maxCh = Math.max(r, g, b);
-            const isNearGrayWhite = maxCh - minCh < 22;
-
-            if (isNearGrayWhite && minCh > 238) {
-              data[i + 3] = 0;
-            } else if (isNearGrayWhite && minCh > 205) {
-              const fade = (238 - minCh) / (238 - 205);
-              data[i + 3] = Math.round(data[i + 3] * fade);
-            }
-          }
-
-          ctx.putImageData(imgData, 0, 0);
-          img.dataset.bgProcessed = 'true';
-          img.src = canvas.toDataURL('image/png');
-        } catch {
-          // در صورت خطا، حالت ترکیبی CSS در تم روشن فعال می‌ماند
-        }
-      };
-
-      if (img.complete && img.naturalWidth > 0) {
-        process();
-      } else {
-        img.addEventListener('load', process, { once: true });
+    if (headerImg?.getAttribute('src')) {
+      let footerImg = box.querySelector<HTMLImageElement>('img.elmos-footer-logo');
+      if (!footerImg) {
+        footerImg = document.createElement('img');
+        footerImg.className = 'elmos-footer-logo';
+        box.innerHTML = '';
+        box.appendChild(footerImg);
       }
-    });
+      footerImg.src = headerImg.getAttribute('src')!;
+      footerImg.alt = 'لوگوی دانشگاه علم و صنعت ایران';
+    } else if (headerSvg && !box.querySelector('svg')) {
+      const clonedSvg = headerSvg.cloneNode(true) as SVGElement;
+      clonedSvg.classList.add('elmos-footer-logo');
+      box.innerHTML = '';
+      box.appendChild(clonedSvg);
+    }
   }
 
-  makeFooterLogoTransparent();
-  document.addEventListener('astro:after-swap', makeFooterLogoTransparent);
+  syncFooterLogoWithHeader();
+  document.addEventListener('astro:after-swap', syncFooterLogoWithHeader);
 </script>
