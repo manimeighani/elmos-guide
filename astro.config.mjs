@@ -52,6 +52,7 @@ export default defineConfig({
           },
         },
       ],
+      routeMiddleware: './src/routeData.ts',
       sidebar: [
         {
           label: '🌐 تور مجازی دانشگاه علم و صنعت',
@@ -65,16 +66,7 @@ export default defineConfig({
         },
         {
           label: '🗺️ نقشه و فضاهای دانشگاه',
-          items: [
-            { label: 'نقشه دانشگاه', slug: 'campus/map' },
-            { label: 'ورودی‌ها', slug: 'campus/entrances' },
-            { label: 'دانشکده‌ها', slug: 'campus/faculties' },
-            {
-              label: '🏢 بخش‌ها و امکانات رفاهی',
-              collapsed: false,
-              autogenerate: { directory: 'campus/facilities' },
-            },
-          ],
+          autogenerate: { directory: 'campus', collapsed: false },
         },
         {
           label: '💻 سامانه‌های اینترنتی',
