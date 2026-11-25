@@ -1992,3 +1992,51 @@ header.header:hover {
     border-radius: 20px 0 0 20px !important;
   }
 }
+/* =========================================
+   ۱۷. افقی و جمع‌وجور کردن دکمه‌های قبلی/بعدی در موبایل
+   ========================================= */
+@media (max-width: 49.999rem) {
+  .pagination-links {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.55rem !important;
+    margin-top: 1.5rem !important;
+  }
+
+  .pagination-links a {
+    padding: 0.55rem 0.65rem !important;
+    gap: 0.35rem !important;
+    border-radius: 14px !important;
+    font-size: 0.68rem !important;
+    line-height: 1.35 !important;
+    min-width: 0 !important;
+    align-items: center !important;
+  }
+
+  .pagination-links a > span {
+    min-width: 0 !important;
+    overflow: hidden;
+  }
+
+  .pagination-links .link-title {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    line-height: 1.4 !important;
+    margin-top: 0.1rem !important;
+  }
+
+  .pagination-links svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* در اولین صفحه که فقط دکمه «بعدی» وجود دارد، در ستون چپ قرار بگیرد */
+  .pagination-links a[rel='next']:only-child {
+    grid-column: 2 !important;
+  }
+}

@@ -6,7 +6,7 @@ description: نقشه محوطه و لینک تور مجازی دانشگاه ع
 
 ![](/images/uploads/screenshot-2026-11-23-090504.png)
 
-<div class="system-btn-group"><a href="" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ورود به تور مجازی ۳۶۰ درجه دانشگاه علم و صنعت</a></div>
+<div class="system-btn-group"><a href="https://civil.iust.ac.ir/content/29837/%D8%AA%D9%88%D8%B1-%D9%85%D8%AC%D8%A7%D8%B2%DB%8C-%D8%AF%D8%A7%D9%86%D8%B4%DA%AF%D8%A7%D9%87-%D8%B9%D9%84%D9%85-%D9%88-%D8%B5%D9%86%D8%B9%D8%AA-%D8%A7%DB%8C%D8%B1%D8%A7%D9%86" target="_blank" rel="noopener noreferrer" class="system-btn">🔗 ورود به تور مجازی ۳۶۰ درجه دانشگاه علم و صنعت</a></div>
 
 ## تصویر نقشه محوطه دانشگاه
 

@@ -55,7 +55,7 @@ export default defineConfig({
       sidebar: [
         {
           label: '🌐 تور مجازی دانشگاه علم و صنعت',
-          link: 'https://iust.ac.ir',
+          link: 'https://civil.iust.ac.ir/content/29837/%D8%AA%D9%88%D8%B1-%D9%85%D8%AC%D8%A7%D8%B2%DB%8C-%D8%AF%D8%A7%D9%86%D8%B4%DA%AF%D8%A7%D9%87-%D8%B9%D9%84%D9%85-%D9%88-%D8%B5%D9%86%D8%B9%D8%AA-%D8%A7%DB%8C%D8%B1%D8%A7%D9%86',
           attrs: { target: '_blank', rel: 'noopener noreferrer' },
           badge: { text: '۳۶۰ درجه', variant: 'tip' },
         },
