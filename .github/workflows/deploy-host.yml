@@ -39,3 +39,4 @@ jobs:
             .well-known/**
             cgi-bin/**
             api/**
+            videos/**

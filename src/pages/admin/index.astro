@@ -231,6 +231,9 @@
           .elmos-table th { background: #0B243B; color: #fff; padding: 10px 14px; border-bottom: 2px solid #00A3A0; }
           .elmos-table td { padding: 9px 14px; border-bottom: 1px solid #e5eef5; }
           .elmos-table tbody tr:nth-child(even) { background: #f7fafd; }
+          .elmos-video-card { margin: 14px 0; border-radius: 14px; overflow: hidden; border: 1.5px solid #d4e0eb; background: #f8fbfd; }
+          .elmos-video-player { display: block; width: 100%; max-height: 460px; background: #07131f; }
+          .elmos-video-caption { padding: 8px 12px; font-size: 13px; color: #475569; text-align: center; border-top: 1px solid #e2ebf3; }
           `,
           { raw: true }
         );
@@ -477,6 +480,68 @@
               .join('');
             const cap = d.caption ? `<caption>${d.caption}</caption>` : '';
             return `<div class="elmos-table-wrap"><table class="elmos-table">${cap}<thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
+          },
+        });
+        // ۱۲. ویدیوی مستقیم (آپلود MP4/WebM یا لینک مستقیم)
+        CMS.registerEditorComponent({
+          id: 'direct-video',
+          label: '🎥 ویدیوی مستقیم (آپلود MP4 / WebM)',
+          fields: [
+            {
+              name: 'file',
+              label: 'آپلود فایل ویدیو (مناسب ویدیوهای کوتاه زیر ۲۰ مگابایت با فرمت MP4)',
+              widget: 'file',
+              required: false,
+            },
+            {
+              name: 'url',
+              label: 'یا لینک مستقیم ویدیو (برای ویدیوهای حجیم‌تر؛ مثلاً /videos/demo.mp4)',
+              widget: 'string',
+              required: false,
+            },
+            {
+              name: 'poster',
+              label: 'تصویر کاور قبل از پخش (اختیاری)',
+              widget: 'image',
+              required: false,
+            },
+            {
+              name: 'caption',
+              label: 'توضیح زیر ویدیو (اختیاری)',
+              widget: 'string',
+              required: false,
+            },
+          ],
+          pattern:
+            /<figure class="elmos-video-card"><video class="elmos-video-player" controls preload="metadata" playsinline src="([^"]+)"(?: poster="([^"]*)")?><\/video>(?:<figcaption class="elmos-video-caption">([^<]*)<\/figcaption>)?<\/figure>/,
+          fromBlock: (m) => {
+            const src = m[1] || '';
+            const isUploadedInCms = src.startsWith('/images/uploads/');
+            return {
+              file: isUploadedInCms ? src : '',
+              url: isUploadedInCms ? '' : src,
+              poster: m[2] || '',
+              caption: m[3] || '',
+            };
+          },
+          toBlock: (d) => {
+            const videoSrc = d.url && d.url.trim() ? d.url.trim() : d.file || '';
+            const posterAttr = d.poster ? ` poster="${d.poster}"` : '';
+            const captionHtml =
+              d.caption && d.caption.trim()
+                ? `<figcaption class="elmos-video-caption">${d.caption.trim()}</figcaption>`
+                : '';
+            return `<figure class="elmos-video-card"><video class="elmos-video-player" controls preload="metadata" playsinline src="${videoSrc}"${posterAttr}></video>${captionHtml}</figure>`;
+          },
+          toPreview: (d) => {
+            const videoSrc = d.url && d.url.trim() ? d.url.trim() : d.file || '';
+            const posterAttr = d.poster ? ` poster="${d.poster}"` : '';
+            const captionHtml = d.caption
+              ? `<figcaption class="elmos-video-caption">${d.caption}</figcaption>`
+              : '';
+            return videoSrc
+              ? `<figure class="elmos-video-card"><video class="elmos-video-player" controls preload="metadata" src="${videoSrc}"${posterAttr}></video>${captionHtml}</figure>`
+              : `<div style="background:#EBF2FA;color:#0B243B;border:1.5px dashed #00A3A0;padding:20px;text-align:center;border-radius:12px;font-weight:700;">🎥 هنوز فایل یا لینک ویدیو انتخاب نشده است</div>`;
           },
         });
       }
